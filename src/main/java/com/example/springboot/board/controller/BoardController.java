@@ -1,6 +1,6 @@
 package com.example.springboot.board.controller;
 
-import com.example.springboot.board.model.BoardDTO;
+import com.example.springboot.board.model.BoardRequestDTO;
 import com.example.springboot.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +16,6 @@ public class BoardController {
 	private final BoardService boardService;
 
 	@PostMapping("/board/save_from")
-	public Integer save(@RequestBody BoardDTO boardDTO) {return boardService.save(boardDTO);}
+	public Integer save(@RequestBody BoardRequestDTO boardRequestDTO) {return boardService.save(boardRequestDTO);}
 
 }
