@@ -19,4 +19,9 @@ public class BoardEntity extends BaseTimeEntity {
 	@Column(length = 30, nullable = false) 				 private String title;
 	@Column(columnDefinition = "TEXT", nullable = false) private String content;
 	@Column(length = 20, nullable = false) 				 private String author;
+
+	public void update(String title, String content) {
+		this.title = title;
+		this.content = content;
+	}
 }

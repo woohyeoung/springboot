@@ -8,12 +8,12 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class BoardRequestDTO {
+public class BoardSaveRequestDTO {
 
 	private String title, content, author;
 
 	@Builder
-	public BoardRequestDTO(String title, String content, String author) {
+	public BoardSaveRequestDTO(String title, String content, String author) {
 		this.title = title;
 		this.content = content;
 		this.author = author;

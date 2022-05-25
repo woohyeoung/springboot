@@ -1,21 +1,44 @@
 package com.example.springboot.board.controller;
 
-import com.example.springboot.board.model.BoardRequestDTO;
+import com.example.springboot.board.model.BoardSaveRequestDTO;
+import com.example.springboot.board.model.BoardResponseDTO;
+import com.example.springboot.board.model.BoardUpdateRequestDTO;
 import com.example.springboot.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/board")
 public class BoardController {
 
 	private final BoardService boardService;
 
-	@PostMapping("/board/save_from")
-	public Integer save(@RequestBody BoardRequestDTO boardRequestDTO) {return boardService.save(boardRequestDTO);}
+	@PostMapping("/save")
+	public Integer save(@RequestBody BoardSaveRequestDTO boardSaveRequestDTO) {return boardService.save(boardSaveRequestDTO);}
 
+	@GetMapping("/")
+	public List<BoardResponseDTO> index() {
+		List<BoardResponseDTO> list = boardService.findAllDesc();
+		return list;
+	}
+
+	@PutMapping("/{id}")
+	public Integer update(@PathVariable(name = "id") Integer boardNo,
+						  @RequestBody BoardUpdateRequestDTO boardUpdateRequestDTO) {
+		return boardService.update(boardNo, boardUpdateRequestDTO);
+	}
+
+	@GetMapping("/{id}")
+	public BoardResponseDTO findById(@PathVariable(name = "id") Integer boardNo) {
+		return boardService.findById(boardNo);
+	}
+
+	@DeleteMapping("/{id}")
+	public Integer delete(@PathVariable(name = "id") Integer boardNo) {
+		boardService.delete(boardNo);
+		return boardNo;
+	}
 }
