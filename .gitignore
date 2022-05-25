@@ -1,0 +1,16 @@
+# Folder
+.gradle/
+.idea/
+build/
+out/
+src/test/
+
+# File
+# Setting
+!gradle/wrapper/gradle-wrapper.jar
+*.iws
+*.iml
+*.ipr
+
+# config
+src/main/resources/application.properties
