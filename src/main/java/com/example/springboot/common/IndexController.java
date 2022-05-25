@@ -11,7 +11,7 @@ public class IndexController {
 
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping("/")
-	public Test index(@RequestBody String name) {
+	public Test test(@RequestBody String name) {
 		Test test = new Test(name);
 
 		return test;
