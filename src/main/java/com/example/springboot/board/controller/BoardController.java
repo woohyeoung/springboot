@@ -19,7 +19,7 @@ public class BoardController {
 	@PostMapping("/save")
 	public Integer save(@RequestBody BoardSaveRequestDTO boardSaveRequestDTO) {return boardService.save(boardSaveRequestDTO);}
 
-	@GetMapping("/")
+	@GetMapping("/list")
 	public List<BoardResponseDTO> index() {
 		List<BoardResponseDTO> list = boardService.findAllDesc();
 		return list;
