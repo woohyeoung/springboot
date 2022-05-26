@@ -25,18 +25,18 @@ public class BoardController {
 		return list;
 	}
 
-	@PutMapping("/{id}")
+	@PutMapping("/list/{id}")
 	public Integer update(@PathVariable(name = "id") Integer boardNo,
 						  @RequestBody BoardUpdateRequestDTO boardUpdateRequestDTO) {
 		return boardService.update(boardNo, boardUpdateRequestDTO);
 	}
 
-	@GetMapping("/{id}")
+	@GetMapping("/list/{id}")
 	public BoardResponseDTO findById(@PathVariable(name = "id") Integer boardNo) {
 		return boardService.findById(boardNo);
 	}
 
-	@DeleteMapping("/{id}")
+	@DeleteMapping("/list/{id}")
 	public Integer delete(@PathVariable(name = "id") Integer boardNo) {
 		boardService.delete(boardNo);
 		return boardNo;
