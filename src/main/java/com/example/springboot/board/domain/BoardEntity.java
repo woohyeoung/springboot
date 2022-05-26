@@ -4,13 +4,13 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Entity
 @Getter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Table(name = "tbl_board")
+@Entity
 public class BoardEntity extends BaseTimeEntity {
 
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
