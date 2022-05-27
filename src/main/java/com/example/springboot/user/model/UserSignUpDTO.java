@@ -3,8 +3,10 @@ package com.example.springboot.user.model;
 import com.example.springboot.user.domain.UserEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class UserSignUpDTO {
 

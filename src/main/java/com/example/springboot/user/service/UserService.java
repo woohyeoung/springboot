@@ -30,38 +30,47 @@ public class UserService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		return userRepository.findByEmail(username)
-				.orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다. userName = " + username));
+		UserDetails userDetails = userRepository.findByEmail(username);
+		return userDetails;
 	}
 
-	public void validateUser(UserSignUpDTO userSignUpDTO) {
-		userRepository.findByEmail(userSignUpDTO.getEmail())
-				.ifPresent(m -> new IllegalArgumentException("이미 존재하는 회원입니다."));
+	public boolean validateUser(String email) {
+		return userRepository.existsByEmail(email);
 	}
 
-	public UserSignUpDTO join(UserSignUpDTO userSignUpDTO) {
+	public String join(UserSignUpDTO sign) {
 		try {
-			validateUser(userSignUpDTO);
-
-			UserEntity userEntity = userRepository.save(UserEntity.builder()
-					.email(userSignUpDTO.getEmail())
-					.password(passwordEncoder.encode(userSignUpDTO.getPassword()))
-					.name(userSignUpDTO.getName())
-					.roles(Collections.singletonList("ROLE_USER"))
-					.build());
-			return new UserSignUpDTO(userEntity);
+			if(!validateUser(sign.getEmail())) {
+				System.out.println("ㅎㅎㅎ" + sign.getEmail()+ " " + sign.getPassword());
+				UserEntity entity = userRepository.save(UserEntity.builder()
+						.email(sign.getEmail())
+						.password(passwordEncoder.encode(sign.getPassword()))
+						.name(sign.getName())
+						.build());
+				return entity.getEmail();
+			} else {
+				return "ERROR : 이미 존재하는 정보입니다.";
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	public String login(UserSignInDTO userSignInDTO) {
-		UserEntity userEntity = userRepository.findByEmail(userSignInDTO.getEmail())
-				.orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-Mail 입니다. E-Mail = " + userSignInDTO.getEmail()));
-		if (!passwordEncoder.matches(userSignInDTO.getPassword(), userEntity.getPassword())) {
-			throw new IllegalArgumentException("잘못된 비밀번호입니다.");
+	public String login(UserSignInDTO sign) {
+		try {
+			if(!validateUser(sign.getEmail()))
+				return "ERROR : 가입되지 않은 E-Mail 입니다.";
+
+			UserEntity user = userRepository.findByEmail(sign.getEmail());
+
+			if(!passwordEncoder.matches(user.getPassword(), sign.getPassword()))
+				return "ERROR : 잘못된 비밀번호 입니다.";
+
+			return tokenProvider.createToken(user.getEmail(), user.getName());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
-		return tokenProvider.createToken(userEntity.getUsername(), userEntity.getRoles());
 	}
 }

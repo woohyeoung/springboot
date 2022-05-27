@@ -1,4 +1,4 @@
-package com.example.springboot.user.model;
+package com.example.springboot.common.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class UserValidDTO {
-	private String email;
+public class Payload {
+	private int code;
+	private String value;
 }

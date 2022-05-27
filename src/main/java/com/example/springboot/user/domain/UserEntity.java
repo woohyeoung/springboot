@@ -28,16 +28,8 @@ public class UserEntity implements UserDetails {
 	@Column(length = 300, nullable = false)					private String password;
 	@Column(length = 20, nullable = false)					private String name;
 
-	@ElementCollection(fetch = FetchType.EAGER)
-	@Builder.Default
-	private List<String> roles = new ArrayList<>();
-
 	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return this.roles.stream()
-				.map(SimpleGrantedAuthority::new)
-				.collect(Collectors.toList());
-	}
+	public Collection<? extends GrantedAuthority> getAuthorities() { return null; }
 
 	@Override
 	public String getUsername() {
@@ -46,21 +38,21 @@ public class UserEntity implements UserDetails {
 
 	@Override
 	public boolean isAccountNonExpired() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return false;
+		return true;
 	}
 }

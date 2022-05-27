@@ -3,6 +3,7 @@ package com.example.springboot.common.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,9 +17,10 @@ import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class TokenController {
 
-	@Value("${SECRET_KEY}")		 private String secretKey;
+	@Value("${SECRET_KEY}") private String secretKey;
 
 	private UserDetailsService userDetailsService;
 

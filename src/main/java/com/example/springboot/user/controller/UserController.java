@@ -1,6 +1,7 @@
 package com.example.springboot.user.controller;
 
 import com.example.springboot.common.security.TokenProvider;
+import com.example.springboot.common.utils.Payload;
 import com.example.springboot.user.domain.UserEntity;
 import com.example.springboot.user.domain.UserRepository;
 import com.example.springboot.user.model.UserSignInDTO;
@@ -22,28 +23,23 @@ import java.util.Map;
 @RequestMapping("/api")
 public class UserController {
 
-	private final UserRepository userRepository;
 	private final UserService userService;
 
-	@PostMapping("/join")
-	public UserValidDTO join(@RequestBody UserSignUpDTO userSignUpDTO) {
-		try {
-			UserValidDTO user = new UserValidDTO(userService.join(userSignUpDTO).getEmail());
-			return user;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+	@PostMapping("/sign")
+	public Payload join(@RequestBody UserSignUpDTO userSignUpDTO) {
+		String response = userService.join(userSignUpDTO);
+
+		if(response == null || response.startsWith("ERROR")) return new Payload(0, "이미 존재하는 정보입니다.");
+
+		return new Payload(1, response);
 	}
 
 	@PostMapping("/login")
-	public String login(@RequestBody UserSignInDTO userSignInDTO) {
-		try {
-			return userService.login(userSignInDTO);
-		} catch (Exception e) {
-			System.out.println("로그인 오류");
-			e.printStackTrace();
-			return null;
-		}
+	public Payload login(@RequestBody UserSignInDTO userSignInDTO) {
+		String response = userService.login(userSignInDTO);
+
+		if(response == null || response.startsWith("ERROR")) return new Payload(0, "E-Mail 또는 비밀번호가 일치하지 않습니다.");
+
+		return new Payload(1, response);
 	}
 }

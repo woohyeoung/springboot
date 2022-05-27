@@ -31,16 +31,15 @@ public class WebSecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.httpBasic().disable()
-				.csrf().disable()
-				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+		http.cors().disable().csrf().disable()
+					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and().authorizeRequests()
-				.antMatchers("/admin/**").hasRole("ADMIN")
-				.antMatchers("/user/**").hasRole("USER")
-				.antMatchers("/**").permitAll()
+					.antMatchers("/admin/**").hasRole("ADMIN")
+					.antMatchers("/user/**").hasRole("USER")
+					.antMatchers("/**").permitAll()
 				.and()
-				.addFilterBefore(new AuthenticationFilter(tokenController),
-						UsernamePasswordAuthenticationFilter.class);
+					.addFilterBefore(new AuthenticationFilter(tokenController),
+							UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
 }
