@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
 	private final TokenController tokenController;
+	private final CORSConfig config;
 
 	@Bean
 	AuthenticationManagerFactoryBean authenticationManagerFactoryBean() {
@@ -31,15 +32,11 @@ public class WebSecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.cors().disable().csrf().disable()
+		http.addFilter(config.corsFilter()).csrf().disable()
+				.addFilterBefore(new AuthenticationFilter(tokenController), UsernamePasswordAuthenticationFilter.class)
 					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and().authorizeRequests()
-					.antMatchers("/admin/**").hasRole("ADMIN")
-					.antMatchers("/user/**").hasRole("USER")
-					.antMatchers("/**").permitAll()
-				.and()
-					.addFilterBefore(new AuthenticationFilter(tokenController),
-							UsernamePasswordAuthenticationFilter.class);
+					.antMatchers("/**").permitAll();
 		return http.build();
 	}
 }
