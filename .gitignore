@@ -16,4 +16,3 @@ src/main/resources/application.properties
 
 # test
 http
-src/test/
