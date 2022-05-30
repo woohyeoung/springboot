@@ -3,16 +3,14 @@ package com.example.springboot.user.service;
 import com.example.springboot.common.security.TokenProvider;
 import com.example.springboot.user.domain.UserEntity;
 import com.example.springboot.user.domain.UserRepository;
-import com.example.springboot.user.model.UserSignInDTO;
-import com.example.springboot.user.model.UserSignUpDTO;
+import com.example.springboot.user.model.UserSignInRequestDTO;
+import com.example.springboot.user.model.UserSignUpRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -38,26 +36,23 @@ public class UserService implements UserDetailsService {
 		return userRepository.existsByEmail(email);
 	}
 
-	public String join(UserSignUpDTO sign) {
+	public String join(UserSignUpRequestDTO sign) {
 		try {
 			if(!validateUser(sign.getEmail())) {
-				System.out.println("ㅎㅎㅎ" + sign.getEmail()+ " " + sign.getPassword());
 				UserEntity entity = userRepository.save(UserEntity.builder()
 						.email(sign.getEmail())
 						.password(passwordEncoder.encode(sign.getPassword()))
 						.name(sign.getName())
 						.build());
 				return entity.getEmail();
-			} else {
-				return "ERROR : 이미 존재하는 정보입니다.";
-			}
+			} else  return "ERROR : 이미 존재하는 정보입니다.";
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			return "SERVER : UserService join method";
 		}
 	}
 
-	public String login(UserSignInDTO sign) {
+	public String login(UserSignInRequestDTO sign) {
 		try {
 			if(!validateUser(sign.getEmail()))
 				return "ERROR : 가입되지 않은 E-Mail 입니다.";
@@ -70,7 +65,7 @@ public class UserService implements UserDetailsService {
 			return tokenProvider.createToken(user.getEmail(), user.getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			return "SERVER : UserService login method";
 		}
 	}
 }

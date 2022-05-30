@@ -6,11 +6,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserSignInDTO {
+public class UserSignInRequestDTO {
 
 	private String email, password;
 
-	public UserSignInDTO(UserEntity userEntity) {
+	public UserSignInRequestDTO(UserEntity userEntity) {
 		this.email = userEntity.getEmail();
 		this.password = userEntity.getPassword();
 	}

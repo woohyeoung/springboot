@@ -8,11 +8,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserSignUpDTO {
+public class UserSignUpRequestDTO {
 
 	private String email, password, name;
 
-	public UserSignUpDTO(UserEntity user) {
+	public UserSignUpRequestDTO(UserEntity user) {
 		this.email = user.getEmail();
 		this.password = user.getPassword();
 		this.name = user.getName();

@@ -7,7 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Payload {
+public class Response {
 	private int code;
-	private String value;
+	private boolean isSuccess;
+	private Object value;
 }

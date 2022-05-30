@@ -1,10 +1,13 @@
 package com.example.springboot.user.controller;
 
-import com.example.springboot.common.utils.Payload;
-import com.example.springboot.user.model.UserSignInDTO;
-import com.example.springboot.user.model.UserSignUpDTO;
+import com.example.springboot.common.utils.Response;
+import com.example.springboot.user.model.UserSignInRequestDTO;
+import com.example.springboot.user.model.UserSignUpRequestDTO;
 import com.example.springboot.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.apache.juli.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,23 +18,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/user")
 public class UserController {
 
+	private final Logger logger = LoggerFactory.getLogger(UserController.class);
 	private final UserService userService;
 
 	@PostMapping("/sign")
-	public Payload join(@RequestBody UserSignUpDTO userSignUpDTO) {
-		String response = userService.join(userSignUpDTO);
+	public Response join(@RequestBody UserSignUpRequestDTO userSignUpRequestDTO) {
+		logger.info("UserService join method ...");
+		String result = userService.join(userSignUpRequestDTO);
 
-		if(response == null || response.startsWith("ERROR")) return new Payload(0, "이미 존재하는 정보입니다.");
+		if(result.startsWith("ERROR")) return new Response(0, false, result);
+		if(result.startsWith("SERVER")) return new Response(1, false, result);
 
-		return new Payload(1, response);
+		return new Response(2, true, result);
 	}
 
 	@PostMapping("/login")
-	public Payload login(@RequestBody UserSignInDTO userSignInDTO) {
-		String response = userService.login(userSignInDTO);
+	public Response login(@RequestBody UserSignInRequestDTO userSignInRequestDTO) {
+		logger.info("UserService login method ...");
+		String result = userService.login(userSignInRequestDTO);
 
-		if(response == null || response.startsWith("ERROR")) return new Payload(0, "E-Mail 또는 비밀번호가 일치하지 않습니다.");
+		if(result.startsWith("ERROR")) return new Response(0, false, result);
+		if(result.startsWith("SERVER")) return new Response(1, false, result);
 
-		return new Payload(1, response);
+		return new Response(2, true,  result);
 	}
+
+
 }
