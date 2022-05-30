@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -18,35 +19,78 @@ public class BoardService {
 
 	private final BoardRepository boardRepository;
 
+	public boolean validateBoard(Integer boardNo) {
+		if(boardRepository.findById(boardNo).isPresent()) return true;
+		else return false;
+	}
+
 	@Transactional
-	public Integer save(BoardSaveRequestDTO boardSaveRequestDTO) {return boardRepository.save(boardSaveRequestDTO.toEntity()).getBoardNo();}
+	public Integer save(BoardSaveRequestDTO boardSaveRequestDTO) {
+		try {
+			return boardRepository.save(boardSaveRequestDTO.toEntity()).getBoardNo();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
 
 	@Transactional(readOnly = true)
 	public List<BoardResponseDTO> findAllDesc() {
-		return boardRepository.findAllDesc().stream()
-				.map(BoardResponseDTO::new)
-				.collect(Collectors.toList());
+		try {
+			return boardRepository.findAllDesc().stream()
+					.map(BoardResponseDTO::new)
+					.collect(Collectors.toList());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Transactional
 	public Integer update(Integer boardNo, BoardUpdateRequestDTO boardUpdateRequestDTO) {
-		BoardEntity boardEntity = boardRepository.findById(boardNo)
-				.orElseThrow(()-> new IllegalArgumentException("해당 게시물이 없습니다. boardNo = " + boardNo));
-		boardEntity.update(boardUpdateRequestDTO.getTitle(), boardUpdateRequestDTO.getContent());
-		return boardNo;
+		try {
+			BoardEntity boardEntity = boardRepository.findById(boardNo).get();
+			boardEntity.update(boardUpdateRequestDTO.getTitle(), boardUpdateRequestDTO.getContent());
+
+			return boardNo;
+		} catch (NoSuchElementException ne) {
+			ne.printStackTrace();
+			return -1;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return -2;
+		}
 	}
 
 	@Transactional
 	public BoardResponseDTO findById(Integer boardNo) {
-		BoardEntity boardEntity = boardRepository.findById(boardNo)
-				.orElseThrow(()-> new IllegalArgumentException("해당 게시물이 없습니다. boardNo = " + boardNo));
-		return new BoardResponseDTO(boardEntity);
+		try {
+			BoardEntity boardEntity = boardRepository.findById(boardNo).get();
+
+			return new BoardResponseDTO(boardEntity);
+		} catch (NoSuchElementException ne) {
+			ne.printStackTrace();
+			return new BoardResponseDTO(-1);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Transactional
-	public void delete(Integer boardNo) {
-		BoardEntity boardEntity = boardRepository.findById(boardNo)
-				.orElseThrow(()-> new IllegalArgumentException("해당 게시물이 없습니다. boardNo = " + boardNo));
-		boardRepository.delete(boardEntity);
+	public Integer delete(Integer boardNo) {
+		try {
+			BoardEntity boardEntity = boardRepository.findById(boardNo).get();
+			boardRepository.delete(boardEntity);
+
+			return boardNo;
+		} catch (NoSuchElementException ne) {
+			ne.printStackTrace();
+			return -1;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return -2;
+		}
+
 	}
 }

@@ -6,6 +6,7 @@ import com.example.springboot.user.domain.UserRepository;
 import com.example.springboot.user.model.UserSignInRequestDTO;
 import com.example.springboot.user.model.UserSignUpRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -46,9 +47,12 @@ public class UserService implements UserDetailsService {
 						.build());
 				return entity.getEmail();
 			} else  return "ERROR : 이미 존재하는 정보입니다.";
+		} catch (DataIntegrityViolationException de) {
+			de.printStackTrace();
+			return "ERROR : 입력되지 않은 값이 있습니다.";
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "SERVER : UserService join method";
+			return "SERVER : ";
 		}
 	}
 
@@ -59,13 +63,18 @@ public class UserService implements UserDetailsService {
 
 			UserEntity user = userRepository.findByEmail(sign.getEmail());
 
-			if(!passwordEncoder.matches(user.getPassword(), sign.getPassword()))
+			System.out.println(user);
+
+			if(!passwordEncoder.matches(sign.getPassword(), user.getPassword()))
 				return "ERROR : 잘못된 비밀번호 입니다.";
 
 			return tokenProvider.createToken(user.getEmail(), user.getName());
+		} catch (IllegalArgumentException ie) {
+			ie.printStackTrace();
+			return "ERROR : 입력 형식에 맞지 않게 기입하셨습니다.";
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "SERVER : UserService login method";
+			return "SERVER : ";
 		}
 	}
 }

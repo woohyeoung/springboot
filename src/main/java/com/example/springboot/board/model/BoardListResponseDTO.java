@@ -2,10 +2,12 @@ package com.example.springboot.board.model;
 
 import com.example.springboot.board.domain.BoardEntity;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @Getter
+@ToString
 public class BoardListResponseDTO {
 	private Integer boardNo;
 	private String title, author;

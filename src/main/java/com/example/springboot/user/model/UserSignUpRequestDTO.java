@@ -1,13 +1,13 @@
 package com.example.springboot.user.model;
 
 import com.example.springboot.user.domain.UserEntity;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@ToString
 public class UserSignUpRequestDTO {
 
 	private String email, password, name;

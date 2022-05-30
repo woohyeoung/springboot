@@ -3,7 +3,6 @@
 .idea/
 build/
 out/
-src/test/
 
 # File
 # Setting
@@ -14,3 +13,7 @@ src/test/
 
 # config
 src/main/resources/application.properties
+
+# test
+http
+src/test/
