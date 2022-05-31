@@ -1,6 +1,6 @@
 package com.example.springboot.user.model;
 
-import com.example.springboot.user.domain.UserEntity;
+import com.example.springboot.user.domain.user.UserEntity;
 import lombok.*;
 
 @Getter

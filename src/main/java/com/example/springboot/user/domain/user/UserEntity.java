@@ -1,5 +1,6 @@
-package com.example.springboot.user.domain;
+package com.example.springboot.user.domain.user;
 
+import com.example.springboot.board.domain.BaseTimeEntity;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,7 +15,7 @@ import java.util.Collection;
 @Builder
 @Table(name = "tbl_user")
 @Entity
-public class UserEntity implements UserDetails {
+public class UserEntity extends BaseTimeEntity implements UserDetails {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

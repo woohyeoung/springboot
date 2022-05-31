@@ -1,8 +1,10 @@
 package com.example.springboot.user.controller;
 
 import com.example.springboot.common.response.ResponseDTO;
-import com.example.springboot.user.domain.UserEntity;
-import com.example.springboot.user.domain.UserRepository;
+import com.example.springboot.common.security.TokenProvider;
+import com.example.springboot.user.domain.user.UserEntity;
+import com.example.springboot.user.domain.user.UserRepository;
+import com.example.springboot.user.model.UserSignInRequestDTO;
 import com.example.springboot.user.model.UserSignUpRequestDTO;
 import com.example.springboot.user.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,7 @@ class UserControllerTest {
 	@Autowired UserRepository userRepository;
 	@Autowired PasswordEncoder passwordEncoder;
 	@Autowired UserService userService;
+	@Autowired TokenProvider tokenProvider;
 
 	@Autowired private TestRestTemplate restTemplate;
 
@@ -76,5 +79,62 @@ class UserControllerTest {
 
 		ResponseEntity<ResponseDTO> responseEntity1 = restTemplate.postForEntity(url, test2, ResponseDTO.class);
 		assertThat(responseEntity1.getBody().getMessage()).isEqualTo("회원가입에 실패하였습니다.ERROR : 이미 존재하는 정보입니다.");
+	}
+
+	@Test
+	void 로그인() {
+		// given
+		String em = "test1234@example.com";
+		String pw = "test123";
+		String url = "http://localhost:8080/api/user";
+
+		UserSignUpRequestDTO signUp = new UserSignUpRequestDTO(UserEntity.builder()
+				.email(em)
+				.password(pw)
+				.name("test")
+				.build());
+
+		UserSignInRequestDTO signIn = new UserSignInRequestDTO(em, pw);
+
+		// when
+		ResponseEntity<String> responseEntity1 = restTemplate.postForEntity(url + "/sign", signUp, String.class);
+
+		// then
+		ResponseEntity<String> responseEntity2 = restTemplate.postForEntity(url + "/login", signIn, String.class);
+		System.out.println(responseEntity1.getBody());
+		System.out.println(responseEntity2.getBody());
+		System.out.println(responseEntity2.getHeaders().get("Authorization"));
+		assertThat(responseEntity2.getHeaders().get("Authorization")).isNotEqualTo(null);
+	}
+
+	@Test
+	void 로그아웃() {
+		// given
+		String em = "test12@example.com";
+		String pw = "test123";
+		String url = "http://localhost:8080/api/user";
+
+		UserSignUpRequestDTO signUp = new UserSignUpRequestDTO(UserEntity.builder()
+				.email(em)
+				.password(pw)
+				.name("test")
+				.build());
+
+		UserSignInRequestDTO signIn = new UserSignInRequestDTO(em, pw);
+
+		restTemplate.postForEntity(url + "/sign", signUp, String.class);
+		ResponseEntity<String> responseEntity2 = restTemplate.postForEntity(url + "/login", signIn, String.class);
+
+		// when
+		String token = String.valueOf(responseEntity2.getHeaders().get("Authorization"));
+		String answer = "";
+		System.out.println(token);
+		if(tokenProvider.validateToken(token)) answer = "ok";
+		System.out.println("OK : " + token);
+		restTemplate.postForEntity(url + "/logout", token, String.class);
+
+		// then
+		assertThat(tokenProvider.validateToken(token)).isEqualTo(false);
+		assertThat(answer).isEqualTo("ok");
 	}
 }

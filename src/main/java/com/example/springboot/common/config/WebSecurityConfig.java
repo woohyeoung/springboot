@@ -1,7 +1,8 @@
 package com.example.springboot.common.config;
 
 import com.example.springboot.common.security.AuthenticationFilter;
-import com.example.springboot.common.security.TokenController;
+import com.example.springboot.common.security.TokenProvider;
+import com.example.springboot.user.domain.token.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,7 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-	private final TokenController tokenController;
+	private final TokenProvider tokenProvider;
+	private final TokenRepository tokenRepository;
 	private final CORSConfig config;
 
 	@Bean
@@ -33,7 +35,7 @@ public class WebSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.addFilter(config.corsFilter()).csrf().disable()
-				.addFilterBefore(new AuthenticationFilter(tokenController), UsernamePasswordAuthenticationFilter.class)
+				.addFilterBefore(new AuthenticationFilter(tokenProvider, tokenRepository), UsernamePasswordAuthenticationFilter.class)
 					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and().authorizeRequests()
 					.antMatchers("/**").permitAll();

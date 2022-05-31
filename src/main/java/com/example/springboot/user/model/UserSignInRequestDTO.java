@@ -1,7 +1,7 @@
 package com.example.springboot.user.model;
 
-import com.example.springboot.user.domain.UserEntity;
 import lombok.*;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 @Getter
 @Setter
@@ -9,11 +9,9 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class UserSignInRequestDTO {
-
 	private String email, password;
 
-	public UserSignInRequestDTO(UserEntity user) {
-		this.email = user.getEmail();
-		this.password = user.getPassword();
+	public UsernamePasswordAuthenticationToken toAuthentication() {
+		return new UsernamePasswordAuthenticationToken(email, password);
 	}
 }

@@ -19,11 +19,6 @@ public class BoardService {
 
 	private final BoardRepository boardRepository;
 
-	public boolean validateBoard(Integer boardNo) {
-		if(boardRepository.findById(boardNo).isPresent()) return true;
-		else return false;
-	}
-
 	@Transactional
 	public Integer save(BoardSaveRequestDTO boardSaveRequestDTO) {
 		try {
