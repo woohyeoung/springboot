@@ -1,5 +1,6 @@
-package com.example.springboot.user.service;
+package com.example.springboot.common.security.auth;
 
+import com.example.springboot.user.domain.user.UserEntity;
 import com.example.springboot.user.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,7 +17,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		UserDetails userDetails = userRepository.findByEmail(username);
-		return userDetails;
+		UserEntity user = userRepository.findByEmail(username);
+		return new CustomUserDetails(user);
 	}
 }

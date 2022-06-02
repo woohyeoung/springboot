@@ -20,7 +20,6 @@ public class Payload {
 	public static final String SIGN_UP_FAIL = "회원가입에 실패하였습니다.";
 	public static final String SIGN_OUT_OK = "로그아웃에 성공하였습니다.";
 	public static final String SIGN_OUT_FAIL = "로그아웃에 실패하였습니다.";
-	public static final String RE_LOGIN_OK = "사용자 정보 갱신에 성공하였습니다.";
-	public static final String RE_LOGIN_FAIL = "사용자 정보 갱신에 실패하였습니다.";
+
 	public static final String SERVER_ERROR = "서버와의 통신에 실패하였습니다.";
 }

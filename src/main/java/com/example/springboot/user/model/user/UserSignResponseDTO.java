@@ -1,4 +1,4 @@
-package com.example.springboot.user.model;
+package com.example.springboot.user.model.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

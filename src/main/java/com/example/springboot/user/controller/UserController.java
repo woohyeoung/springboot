@@ -2,20 +2,19 @@ package com.example.springboot.user.controller;
 
 import com.example.springboot.common.response.Payload;
 import com.example.springboot.common.response.ResponseDTO;
-import com.example.springboot.common.response.ResponseHeaderDTO;
-import com.example.springboot.user.model.*;
+import com.example.springboot.user.model.user.UserSignInRequestDTO;
+import com.example.springboot.user.model.user.UserSignInResponseDTO;
+import com.example.springboot.user.model.user.UserSignUpRequestDTO;
 import com.example.springboot.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/user")
 public class UserController {
 
 	private final Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -32,17 +31,14 @@ public class UserController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity login(@RequestBody UserSignInRequestDTO userSignInRequestDTO) {
+	public ResponseDTO login(@RequestBody UserSignInRequestDTO userSignInRequestDTO) {
 		logger.info("UserController login method ...");
 		UserSignInResponseDTO result = userService.login(userSignInRequestDTO);
 
-		if(result.getKey() == 0) return new ResponseEntity(new ResponseHeaderDTO(Payload.SIGN_IN_FAIL + result.getMessage()), HttpStatus.BAD_REQUEST);
-		if(result.getKey() == 1) return new ResponseEntity(new ResponseHeaderDTO(Payload.SERVER_ERROR + "UserController login()"), HttpStatus.INTERNAL_SERVER_ERROR);
+		if(result.getKey() == 0) return new ResponseDTO(HttpStatus.BAD_REQUEST, Payload.SIGN_IN_FAIL + result.getMessage());
+		if(result.getKey() == 1) return new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR, Payload.SERVER_ERROR + "UserController login()");
 
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.set("Authorization", result.getAccessResponseDTO().getAccessToken());
-
-		return new ResponseEntity(new ResponseHeaderDTO(Payload.SIGN_IN_OK), httpHeaders, HttpStatus.OK);
+		return new ResponseDTO(HttpStatus.OK, Payload.SIGN_IN_OK);
 	}
 
 	@PostMapping(path = "/logout", headers = "Authorization")
@@ -54,19 +50,5 @@ public class UserController {
 		if(result.startsWith("SERVER")) return new ResponseDTO().fail(HttpStatus.INTERNAL_SERVER_ERROR, Payload.SERVER_ERROR + "UserController logout()");
 
 		return new ResponseDTO().of(HttpStatus.OK, Payload.SIGN_OUT_OK, result);
-	}
-
-	@PostMapping(path = "/re_login", headers = "Authorization")
-	public ResponseEntity reIssuance(@RequestHeader HttpHeaders headers) {
-		logger.info("UserController reIssuance method ...");
-		UserSignInResponseDTO result = userService.reIssuance(String.valueOf(headers.get("Authorization")));
-
-		if(result.getKey() == 0) return new ResponseEntity(new ResponseHeaderDTO(Payload.RE_LOGIN_FAIL + result.getMessage()), HttpStatus.BAD_REQUEST);
-		if(result.getKey() == 1) return new ResponseEntity(new ResponseHeaderDTO(Payload.SERVER_ERROR + "UserController reIssuance()"), HttpStatus.INTERNAL_SERVER_ERROR);
-
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.set("Authorization", result.getAccessResponseDTO().getAccessToken());
-
-		return new ResponseEntity(new ResponseHeaderDTO(Payload.RE_LOGIN_OK), httpHeaders, HttpStatus.OK);
 	}
 }

@@ -1,11 +1,11 @@
 package com.example.springboot.user.controller;
 
 import com.example.springboot.common.response.ResponseDTO;
-import com.example.springboot.common.security.TokenProvider;
+import com.example.springboot.common.security.jwt.TokenProvider;
 import com.example.springboot.user.domain.user.UserEntity;
 import com.example.springboot.user.domain.user.UserRepository;
-import com.example.springboot.user.model.UserSignInRequestDTO;
-import com.example.springboot.user.model.UserSignUpRequestDTO;
+import com.example.springboot.user.model.user.UserSignInRequestDTO;
+import com.example.springboot.user.model.user.UserSignUpRequestDTO;
 import com.example.springboot.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,7 +112,7 @@ class UserControllerTest {
 		// given
 		String em = "test12@example.com";
 		String pw = "test123";
-		String url = "http://localhost:8080/api/user";
+		String url = "http://localhost:8080";
 
 		UserSignUpRequestDTO signUp = new UserSignUpRequestDTO(UserEntity.builder()
 				.email(em)
@@ -128,9 +128,7 @@ class UserControllerTest {
 		// when
 		String token = String.valueOf(responseEntity2.getHeaders().get("Authorization"));
 		String answer = "";
-		System.out.println(token);
 		if(tokenProvider.validateToken(token)) answer = "ok";
-		System.out.println("OK : " + token);
 		restTemplate.postForEntity(url + "/logout", token, String.class);
 
 		// then

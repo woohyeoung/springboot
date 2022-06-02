@@ -1,4 +1,4 @@
-package com.example.springboot.user.model;
+package com.example.springboot.user.model.user;
 
 import com.example.springboot.user.domain.user.UserEntity;
 import lombok.*;

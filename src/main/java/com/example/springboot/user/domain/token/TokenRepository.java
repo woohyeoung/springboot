@@ -4,4 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TokenRepository extends JpaRepository<TokenEntity, String> {
 	TokenEntity findByEmail(String email);
+	TokenEntity deleteByAccessToken(String email);
 }
