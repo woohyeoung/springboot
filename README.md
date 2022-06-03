@@ -20,4 +20,4 @@
 > 
 > warn : Content - Fail
 > 
-> error : Content Class-function() + Error Message
+> error : Content Class-function() + Error Message(Exception)
