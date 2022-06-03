@@ -136,4 +136,21 @@ class UserControllerTest {
 		assertThat(tokenProvider.validateToken(token)).isEqualTo(false);
 		assertThat(answer).isEqualTo("ok");
 	}
+	@Test
+	void 토큰_재발급() {
+		// given
+		String em = "test123";
+		String pw = "test123";
+		String nm = "test123";
+
+		UserEntity user = UserEntity.builder()
+				.email(em).password(pw).name(nm).build();
+
+		// when
+		String accessToken = tokenProvider.generateAccessToken(user.getEmail());
+
+		// then
+		assertThat(tokenProvider.validateToken(accessToken)).isEqualTo(true);
+		assertThat(tokenProvider.getUserPk(accessToken)).isEqualTo(user.getEmail());
+	}
 }
