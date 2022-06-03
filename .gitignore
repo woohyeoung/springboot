@@ -13,6 +13,6 @@ out/
 
 # config
 src/main/resources/application.properties
-
+src/main/java/com/example/springboot/common/security/jwt/TokenProperties.java
 # test
 http

@@ -126,7 +126,8 @@ class UserControllerTest {
 		ResponseEntity<String> responseEntity2 = restTemplate.postForEntity(url + "/login", signIn, String.class);
 
 		// when
-		String token = String.valueOf(responseEntity2.getHeaders().get("Authorization"));
+		String token =  String.valueOf(responseEntity2.getHeaders().get("Authorization"));
+		System.out.println(token);
 		String answer = "";
 		if(tokenProvider.validateToken(token)) answer = "ok";
 		restTemplate.postForEntity(url + "/logout", token, String.class);

@@ -2,15 +2,22 @@ package com.example.springboot.common.security.auth;
 
 import com.example.springboot.user.domain.user.UserEntity;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
+@Getter
+@Setter
+@ToString
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-	private final UserEntity user;
+	private UserEntity user;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

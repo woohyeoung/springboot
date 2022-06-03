@@ -10,14 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TestController {
 
-	private ResponseDTO responseDTO;
-
 	@RequestMapping(value = "/api/test", method = RequestMethod.GET)
 	public ResponseDTO testGet() {
-		return responseDTO.of(HttpStatus.OK, "Get Mapping Test");
+		return new ResponseDTO().of(HttpStatus.OK, "Get Mapping Test");
 	}
 	@RequestMapping(value = "/api/test", method = RequestMethod.POST)
 	public ResponseDTO testPost(@RequestBody TestModel test) {
-		return responseDTO.of(HttpStatus.OK, "Post Mapping Test" + test.getName());
+		return new ResponseDTO().of(HttpStatus.OK, "Post Mapping Test" + test.getName());
 	}
 }
