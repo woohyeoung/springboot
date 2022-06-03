@@ -1,11 +1,15 @@
 package com.example.springboot.common.security.filter;
 
+import com.example.springboot.common.response.Payload;
+import com.example.springboot.common.response.ResponseDTO;
 import com.example.springboot.common.security.jwt.TokenProperties;
 import com.example.springboot.common.security.jwt.TokenProvider;
 import com.example.springboot.common.security.auth.CustomUserDetailService;
 import com.example.springboot.user.model.token.ValidateTokenDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,6 +27,8 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 	private static final Logger logger = LoggerFactory.getLogger(AuthorizationFilter.class);
 	private final TokenProvider tokenProvider;
 	private final CustomUserDetailService userDetailService;
+
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	public AuthorizationFilter(AuthenticationManager authenticationManager, TokenProvider tokenProvider, CustomUserDetailService userDetailService) {
 		super(authenticationManager);
@@ -48,30 +54,71 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 								new UsernamePasswordAuthenticationToken(userDetails,
 										null,
 										userDetails.getAuthorities());
-						authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-						SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+										authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+										SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+						response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + token);
+
+						String result = objectMapper.writeValueAsString(ResponseDTO.builder()
+																					.status(HttpStatus.OK)
+																					.message(" ACCESS "  + Payload.TOKEN_OK)
+																					.build());
+
+						response.getWriter().write(result);
+					} else {
+						logger.info("Access Token Validation - Fail");
+						String result = objectMapper.writeValueAsString(ResponseDTO.builder()
+																					.status(HttpStatus.BAD_REQUEST)
+																					.message(" ACCESS " + Payload.TOKEN_FAIL)
+																					.build());
+
+						response.getWriter().write(result);
 					}
+					filterChain.doFilter(request, response);
 					return;
 				case 1 :
-					if (tokenProvider.validateRefreshToken(token)) {
+					if (tokenProvider.validateExistingToken(token)) {
 						logger.info("Refresh Token Validation - Success");
 						String accessToken = tokenProvider.generateAccessToken(tokenProvider.getUserPk(token));
 
-						if(!tokenProvider.changeAccessToken(accessToken)) logger.warn("Access Token Save - Fail");
-
 						response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + accessToken);
-						filterChain.doFilter(request, response);
+
+
+						String result = objectMapper.writeValueAsString(ResponseDTO.builder()
+																					.status(HttpStatus.OK)
+																					.message(" REFRESH " + Payload.TOKEN_OK)
+																					.build());
+
+						response.getWriter().write(result);
+					} else {
+						logger.info("Refresh Token Validation - Fail");
+						String result = objectMapper.writeValueAsString(ResponseDTO.builder()
+																					.status(HttpStatus.BAD_REQUEST)
+																					.message(" REFRESH " + Payload.TOKEN_FAIL)
+																					.build());
+
+						response.getWriter().write(result);
 					}
+					filterChain.doFilter(request, response);
 					return;
 				case 2 :
 				default:
-					logger.warn("Token Validation - Fail");
+					logger.warn("Access/Refresh Token Validation - Fail");
+
 					filterChain.doFilter(request, response);
 					return;
 			}
+		} catch (NullPointerException ne) {
+			logger.error("토큰 값이 비어있습니다. AuthorizationFilter - doFilterInternal()");
 		} catch (Exception e) {
-			logger.error("사용자 인증을 확인하지 못해 인가할 수 없습니다.", e);
+			logger.error("사용자 인증을 확인하지 못해 인가할 수 없습니다. AuthorizationFilter - doFilterInternal()", e);
 		}
+		String result = objectMapper.writeValueAsString(ResponseDTO.builder()
+																	.status(HttpStatus.INTERNAL_SERVER_ERROR)
+																	.message(Payload.TOKEN_FAIL)
+																	.build());
+
+		response.getWriter().write(result);
 		filterChain.doFilter(request, response);
 	}
 }

@@ -14,8 +14,6 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -32,6 +30,7 @@ public class TokenProvider {
 	public FirstTimeTokenDTO generateToken(String userPk) {
 		logger.info("TokenProvider - generateToken() ...");
 		Date now = new Date();
+
 		String accessToken = generateAccessToken(userPk);
 		String refreshToken = Jwts.builder()
 				.setSubject(userPk)
@@ -48,10 +47,6 @@ public class TokenProvider {
 	public String generateAccessToken(String userPk) {
 		logger.info("TokenProvider - generateAccessToken() ...");
 		Date now = new Date();
-
-		Map<String, Object> payload = new HashMap<>();
-		payload.put("userPk", userPk);
-
 
 		return Jwts.builder()
 				.setSubject(userPk)
@@ -71,17 +66,17 @@ public class TokenProvider {
 			Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
 			return true;
 		} catch (SignatureException se) {
-			logger.error("잘못된 서명", se);
+			logger.error("잘못된 서명 TokenProvider - validateToken()", se);
 		} catch (MalformedJwtException me) {
-			logger.error("잘못된 토큰", me);
+			logger.error("잘못된 토큰 TokenProvider - validateToken()", me);
 		} catch (ExpiredJwtException ee) {
-			logger.error("만료된 토큰", ee);
+			logger.error("만료된 토큰 TokenProvider - validateToken()", ee);
 		} catch (UnsupportedJwtException ue) {
-			logger.error("지원되지 않는 토큰", ue);
+			logger.error("지원되지 않는 토큰 TokenProvider - validateToken()", ue);
 		} catch (IllegalArgumentException ie) {
-			logger.error("비어있는 토큰", ie);
+			logger.error("비어있는 토큰 TokenProvider - validateToken()", ie);
 		} catch (NullPointerException ne) {
-			logger.error("존재하지 않는 토큰", ne);
+			logger.error("존재하지 않는 토큰 TokenProvider - validateToken()", ne);
 		}
 		return false;
 	}
@@ -89,39 +84,44 @@ public class TokenProvider {
 	public ValidateTokenDTO requestCheckToken(HttpServletRequest request) {
 		logger.info("TokenProvider - requestCheckToken() ...");
 
-		String token = request.getHeader(headerKeyAccess);
+		try {
+			String token = request.getHeader(headerKeyAccess);
 
-		if(token.startsWith(typeKeyAccess)) {
-			return ValidateTokenDTO.builder()
-									.code(0)
-									.token(token.replace(typeKeyAccess, ""))
-									.build();
-		}
-		if(token.startsWith(typeKeyRefresh)){
-			return ValidateTokenDTO.builder()
-									.code(1)
-									.token(token.replace(typeKeyRefresh, "")).build();
+			if(token.startsWith(typeKeyAccess)) {
+				return ValidateTokenDTO.builder()
+						.code(0)
+						.token(token.replace(typeKeyAccess, ""))
+						.build();
+			}
+			if(token.startsWith(typeKeyRefresh)){
+				return ValidateTokenDTO.builder()
+						.code(1)
+						.token(token.replace(typeKeyRefresh, "")).build();
+			}
+		} catch (NullPointerException ne) {
+			logger.error("요청 값이 비어 있습니다. TokenProvider - requestCheckToken()");
+		} catch (Exception e) {
+			logger.error("TokenProvider - requestCheckToken()", e);
 		}
 		return ValidateTokenDTO.builder().code(2).token("").build();
 	}
 
-	public boolean saveRefresh(FirstTimeTokenDTO firstTimeTokenDTO) {
+	public boolean saveRefresh(ReIssuanceTokenDTO reIssuanceTokenDTO) {
 		logger.info("TokenController - saveRefresh() ...");
 		try {
 			tokenRepository.save(TokenEntity.builder()
-					.email(firstTimeTokenDTO.getReIssuanceTokenDTO().getEmail())
-					.accessToken(firstTimeTokenDTO.getAccessToken())
-					.refreshToken(firstTimeTokenDTO.getReIssuanceTokenDTO().getRefreshToken())
+					.email(reIssuanceTokenDTO.getEmail())
+					.refreshToken(reIssuanceTokenDTO.getRefreshToken())
 					.build());
 			return true;
 		} catch (Exception e) {
-			logger.error("토큰 셋 저장 실패", e);
+			logger.error("토큰 셋 저장 실패 TokenProvider - saveRefresh()", e);
 		}
 		return false;
 	}
 
-	public boolean validateRefreshToken(String token) {
-		logger.info("TokenProvider - validateRefreshToken() ...");
+	public boolean validateExistingToken(String token) {
+		logger.info("TokenProvider - validateExistingToken() ...");
 		try {
 			if(this.validateToken(token)) {
 				String userPk = this.getUserPk(token);
@@ -129,18 +129,7 @@ public class TokenProvider {
 				if(existingToken.equals(token)) return true;
 			}
 		} catch (Exception e) {
-			logger.error("리프레쉬 토큰 검증 에러", e);
-		}
-		return false;
-	}
-
-	public boolean changeAccessToken(String token) {
-		try {
-			String userPk = this.getUserPk(token);
-			String value = tokenRepository.updateByAccessToken(userPk);
-			if(value.equals(token)) return true;
-		} catch (Exception e) {
-			logger.error("액세스 토큰 삭제-저장 / 업데이트 에러", e);
+			logger.error("토큰 저장소 비교 검증 에러 TokenProvider - validateExistingToken()", e);
 		}
 		return false;
 	}

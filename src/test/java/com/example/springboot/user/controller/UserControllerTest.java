@@ -2,9 +2,13 @@ package com.example.springboot.user.controller;
 
 import com.example.springboot.common.response.ResponseDTO;
 import com.example.springboot.common.security.jwt.TokenProvider;
+import com.example.springboot.user.domain.token.TokenEntity;
+import com.example.springboot.user.domain.token.TokenRepository;
 import com.example.springboot.user.domain.user.UserEntity;
 import com.example.springboot.user.domain.user.UserRepository;
+import com.example.springboot.user.model.token.FirstTimeTokenDTO;
 import com.example.springboot.user.model.user.UserSignInRequestDTO;
+import com.example.springboot.user.model.user.UserSignResponseDTO;
 import com.example.springboot.user.model.user.UserSignUpRequestDTO;
 import com.example.springboot.user.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -28,6 +32,7 @@ class UserControllerTest {
 	@Autowired PasswordEncoder passwordEncoder;
 	@Autowired UserService userService;
 	@Autowired TokenProvider tokenProvider;
+	@Autowired TokenRepository tokenRepository;
 
 	@Autowired private TestRestTemplate restTemplate;
 
@@ -35,19 +40,19 @@ class UserControllerTest {
 	@Transactional
 	void 회원가입() {
 		// given
-		UserSignUpRequestDTO signUpDTO = new UserSignUpRequestDTO(UserEntity.builder()
+		UserSignUpRequestDTO signUpDTO = UserSignUpRequestDTO.builder()
 				.email("test123@example.com")
 				.password("test123")
 				.name("test")
-				.build());
-		String url = "http://localhost:8080/api/user/sign";
+//				.roles("USER")
+				.build();
+		String url = "http://localhost:8080/sign";
 
 		// when
-		ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, signUpDTO, String.class);
+		ResponseEntity<Object> responseEntity = restTemplate.postForEntity(url, signUpDTO, Object.class);
 
 		// then
 		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(responseEntity.getBody()).isGreaterThan("0");
 
 		List<UserEntity> all = userRepository.findAll();
 		assertThat(all.get(0).getEmail()).isEqualTo("test123@example.com");
@@ -57,28 +62,28 @@ class UserControllerTest {
 	@Test
 	void 중복_회원() {
 		// given
-		UserSignUpRequestDTO test1 = new UserSignUpRequestDTO(UserEntity.builder()
+		UserSignUpRequestDTO test1 = UserSignUpRequestDTO.builder()
 				.email("test@example.com")
 				.password("test123")
 				.name("test")
-				.build());
-		UserSignUpRequestDTO test2 = new UserSignUpRequestDTO(UserEntity.builder()
+				.build();
+		UserSignUpRequestDTO test2 = UserSignUpRequestDTO.builder()
 				.email("test@example.com")
 				.password("test123")
 				.name("test")
-				.build());
+				.build();
 
-		String url = "http://localhost:8080/api/user/sign";
+		String url = "http://localhost:8080/sign";
 
 		// when
-		ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, test1, String.class);
+		ResponseEntity<ResponseDTO> responseEntity = restTemplate.postForEntity(url, test1, ResponseDTO.class);
 
 		// then
 		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(responseEntity.getBody()).isGreaterThan("0");
+		assertThat(responseEntity.getBody().getStatus()).isEqualTo(HttpStatus.OK);
 
 		ResponseEntity<ResponseDTO> responseEntity1 = restTemplate.postForEntity(url, test2, ResponseDTO.class);
-		assertThat(responseEntity1.getBody().getMessage()).isEqualTo("회원가입에 실패하였습니다.ERROR : 이미 존재하는 정보입니다.");
+		assertThat(responseEntity1.getBody().getMessage()).isEqualTo("회원가입에 실패하였습니다.이미 존재하는 정보입니다.");
 	}
 
 	@Test
@@ -86,15 +91,15 @@ class UserControllerTest {
 		// given
 		String em = "test1234@example.com";
 		String pw = "test123";
-		String url = "http://localhost:8080/api/user";
+		String url = "http://localhost:8080";
 
-		UserSignUpRequestDTO signUp = new UserSignUpRequestDTO(UserEntity.builder()
+		UserSignUpRequestDTO signUp = UserSignUpRequestDTO.builder()
 				.email(em)
 				.password(pw)
 				.name("test")
-				.build());
+				.build();
 
-		UserSignInRequestDTO signIn = new UserSignInRequestDTO(em, pw);
+		UserSignInRequestDTO signIn = UserSignInRequestDTO.builder().email(em).password(pw).build();
 
 		// when
 		ResponseEntity<String> responseEntity1 = restTemplate.postForEntity(url + "/sign", signUp, String.class);
@@ -104,8 +109,42 @@ class UserControllerTest {
 		System.out.println(responseEntity1.getBody());
 		System.out.println(responseEntity2.getBody());
 		System.out.println(responseEntity2.getHeaders().get("Authorization"));
+		System.out.println(responseEntity2.getHeaders().get("RefreshToken"));
 		assertThat(responseEntity2.getHeaders().get("Authorization")).isNotEqualTo(null);
+		assertThat(responseEntity2.getHeaders().get("RefreshToken")).isNotEqualTo(null);
 	}
+
+	@Test
+	void 로그인_실패() {
+		// given
+		String em = "test1234@example.com";
+		String pw = "test123";
+		String url = "http://localhost:8080";
+
+		UserSignUpRequestDTO signUp = UserSignUpRequestDTO.builder()
+				.email(em)
+				.password(pw)
+				.name("test")
+				.build();
+
+		UserSignInRequestDTO signIn1 = UserSignInRequestDTO.builder().email("test@examle.com").password(pw).build();
+		UserSignInRequestDTO signIn2 = UserSignInRequestDTO.builder().email(em).password("test").build();
+		// when
+		ResponseEntity<String> responseEntity = restTemplate.postForEntity(url + "/sign", signUp, String.class);
+
+		// then
+		ResponseEntity<String> responseEntity1 = restTemplate.postForEntity(url + "/login", signIn1, String.class);
+		ResponseEntity<String> responseEntity2 = restTemplate.postForEntity(url + "/login", signIn2, String.class);
+
+		System.out.println(responseEntity.getBody());
+		System.out.println(responseEntity1.getBody());
+		System.out.println(responseEntity1.getHeaders().get("Authorization"));
+		System.out.println(responseEntity2.getBody());
+		System.out.println(responseEntity2.getHeaders().get("Authorization"));
+		assertThat(responseEntity1.getHeaders().get("Authorization")).isEqualTo(null);
+		assertThat(responseEntity2.getHeaders().get("Authorization")).isEqualTo(null);
+	}
+
 
 	@Test
 	void 로그아웃() {
@@ -114,27 +153,30 @@ class UserControllerTest {
 		String pw = "test123";
 		String url = "http://localhost:8080";
 
-		UserSignUpRequestDTO signUp = new UserSignUpRequestDTO(UserEntity.builder()
+		UserSignUpRequestDTO signUp = UserSignUpRequestDTO.builder()
 				.email(em)
 				.password(pw)
 				.name("test")
-				.build());
+				.build();
 
-		UserSignInRequestDTO signIn = new UserSignInRequestDTO(em, pw);
+		UserSignInRequestDTO signIn = UserSignInRequestDTO.builder().email(em).password(pw).build();
 
 		restTemplate.postForEntity(url + "/sign", signUp, String.class);
-		ResponseEntity<String> responseEntity2 = restTemplate.postForEntity(url + "/login", signIn, String.class);
+		ResponseEntity<ResponseDTO> responseEntity2 = restTemplate.postForEntity(url + "/login", signIn, ResponseDTO.class);
 
 		// when
 		String token =  String.valueOf(responseEntity2.getHeaders().get("Authorization"));
+		String refresh = String.valueOf(responseEntity2.getHeaders().get("RefreshToken"));
 		System.out.println(token);
+		System.out.println(refresh);
 		String answer = "";
 		if(tokenProvider.validateToken(token)) answer = "ok";
+		if(tokenProvider.validateToken(refresh)) answer += "2";
 		restTemplate.postForEntity(url + "/logout", token, String.class);
 
 		// then
 		assertThat(tokenProvider.validateToken(token)).isEqualTo(false);
-		assertThat(answer).isEqualTo("ok");
+		assertThat(answer).isEqualTo("ok2");
 	}
 	@Test
 	void 토큰_재발급() {
@@ -147,10 +189,15 @@ class UserControllerTest {
 				.email(em).password(pw).name(nm).build();
 
 		// when
-		String accessToken = tokenProvider.generateAccessToken(user.getEmail());
+		FirstTimeTokenDTO firstTimeTokenDTO = tokenProvider.generateToken(user.getEmail());
+		String token = firstTimeTokenDTO.getAccessToken();
+		String compare = tokenProvider.generateAccessToken("helloWorld");
 
+//		String value = tokenRepository.findByEmail(user.getEmail()).getAccessToken();
 		// then
-		assertThat(tokenProvider.validateToken(accessToken)).isEqualTo(true);
-		assertThat(tokenProvider.getUserPk(accessToken)).isEqualTo(user.getEmail());
+//		System.out.println(token);
+//		System.out.println(value);
+//		assertThat(value).isNotEqualTo(compare);
+
 	}
 }

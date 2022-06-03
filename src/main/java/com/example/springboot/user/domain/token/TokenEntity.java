@@ -16,6 +16,5 @@ import javax.persistence.Table;
 @Entity
 public class TokenEntity {
 	@Id @Column(length = 150, nullable = false) private String email;
-	@Column(length = 500, nullable = false) 	private String accessToken;
-	@Column(length = 500, nullable = false) 	private String refreshToken;
+	@Column(nullable = false) 					private String refreshToken;
 }

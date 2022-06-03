@@ -1,12 +1,12 @@
 package com.example.springboot.user.model.user;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@ToString
 @Builder
 public class UserSignResponseDTO {
-	private String email, message;
+	private int key;
+	private String message;
 }

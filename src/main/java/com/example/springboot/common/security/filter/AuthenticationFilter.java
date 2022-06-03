@@ -1,5 +1,7 @@
 package com.example.springboot.common.security.filter;
 
+import com.example.springboot.common.response.Payload;
+import com.example.springboot.common.response.ResponseDTO;
 import com.example.springboot.common.security.auth.CustomUserDetails;
 import com.example.springboot.common.security.jwt.TokenProperties;
 import com.example.springboot.common.security.jwt.TokenProvider;
@@ -7,11 +9,11 @@ import com.example.springboot.user.domain.token.TokenEntity;
 import com.example.springboot.user.domain.token.TokenRepository;
 import com.example.springboot.user.domain.user.UserEntity;
 import com.example.springboot.user.model.token.FirstTimeTokenDTO;
-import com.example.springboot.user.model.user.UserSignResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,7 +36,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	private ObjectMapper objectMapper;
 
 	@Override
-	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
 		logger.info("AuthenticationFilter - attemptAuthentication() ...");
 		try {
 			objectMapper = new ObjectMapper();
@@ -44,9 +46,15 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 			return authenticationManager.authenticate(authenticationToken);
 		} catch (IOException ie) {
-			logger.error("값을 읽지 못했습니다. AuthenticationFilter - attemptAuthentication()", ie);
+			logger.error("유저 정보를 읽지 못했습니다. AuthenticationFilter - attemptAuthentication()", ie);
 		} catch (UsernameNotFoundException ue) {
-			logger.error("유저가 존재하지 않습니다. AuthenticationFilter - attemptAuthentication()", ue);
+			logger.error("받은 유저의 정보와 일치하는 유저가 존재하지 않습니다. AuthenticationFilter - attemptAuthentication()", ue);
+		} catch (NullPointerException ne) {
+			logger.error("받은 유저 정보가 비어 있습니다. AuthenticationFilter - attemptAuthentication()", ne);
+		} catch (AuthenticationException ae) {
+			logger.error("자격 증명에 실패하였습니다. AuthenticationFilter - attemptAuthentication()", ae);
+		} catch (Exception e) {
+			logger.error("SERVER ERROR AuthenticationFilter - attemptAuthentication()", e);
 		}
 		return null;
 	}
@@ -54,48 +62,66 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request,
 											HttpServletResponse response,
-											FilterChain chain, Authentication authResult) throws IOException, ServletException {
+											FilterChain chain, Authentication authResult) throws ServletException {
 		logger.info("AuthenticationFilter - successfulAuthentication() ...");
 
-		CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
-		TokenEntity tokenEntity = tokenRepository.findByEmail(userDetails.getUsername());
+		try {
+			CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
+			TokenEntity tokenEntity = tokenRepository.findByEmail(userDetails.getUsername());
 
-		if(tokenEntity != null) {
-			String accessToken = tokenProvider.generateAccessToken(userDetails.getUsername());
+			if(tokenEntity != null) {
+				logger.info("Existing Refresh Token Check - Success");
+				String accessToken = tokenProvider.generateAccessToken(userDetails.getUsername());
 
-			if (!tokenProvider.changeAccessToken(accessToken)) logger.warn("Access Token Save - Fail");
+				response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + accessToken);
 
-			response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + accessToken);
-			return;
+				String result = objectMapper.writeValueAsString(ResponseDTO.builder()
+																			.status(HttpStatus.OK)
+																			.message(Payload.SIGN_IN_OK)
+																			.build());
+
+				response.getWriter().write(result);
+				return;
+			}
+			FirstTimeTokenDTO firstTimeTokenDTO = tokenProvider.generateToken(userDetails.getUsername());
+
+			if(!tokenProvider.saveRefresh(firstTimeTokenDTO.getReIssuanceTokenDTO())) logger.warn("Token Set Save to Token Repository - Fail");
+
+			response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + firstTimeTokenDTO.getAccessToken());
+			response.addHeader(TokenProperties.HEADER_KEY_REFRESH,TokenProperties.SECRET_TYPE_REFRESH + firstTimeTokenDTO.getReIssuanceTokenDTO().getRefreshToken());
+
+			String result = objectMapper.writeValueAsString(ResponseDTO.builder()
+																		.status(HttpStatus.OK)
+																		.message(Payload.SIGN_IN_OK)
+																		.build());
+
+			response.getWriter().write(result);
+		} catch (IOException ie) {
+			logger.error("유저 정보를 읽지 못했습니다. AuthenticationFilter - successfulAuthentication()", ie);
+		} catch (NullPointerException ne) {
+			logger.error("받은 유저 정보가 비어 있습니다. AuthenticationFilter - successfulAuthentication()", ne);
+		} catch (Exception e) {
+			logger.error("SERVER ERROR AuthenticationFilter - successfulAuthentication()", e);
 		}
-		FirstTimeTokenDTO firstTimeTokenDTO = tokenProvider.generateToken(userDetails.getUsername());
-
-		if(!tokenProvider.saveRefresh(firstTimeTokenDTO)) logger.warn("Token Set Save - Fail");
-
-		response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + firstTimeTokenDTO.getAccessToken());
-		response.addHeader(TokenProperties.HEADER_KEY_REFRESH,TokenProperties.SECRET_TYPE_REFRESH + firstTimeTokenDTO.getReIssuanceTokenDTO().getRefreshToken());
 	}
 
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request,
 											  HttpServletResponse response,
-											  AuthenticationException failed) throws IOException, ServletException {
+											  AuthenticationException failed) throws ServletException {
+		System.out.println("오니?");
 		logger.info("AuthenticationFilter - unsuccessfulAuthentication() ...");
+		try {
+			String result = objectMapper.writeValueAsString(ResponseDTO.builder()
+																		.status(HttpStatus.BAD_REQUEST)
+																		.message(Payload.SIGN_IN_FAIL)
+																		.build());
 
-		objectMapper = new ObjectMapper();
-		UserEntity user = objectMapper.readValue(request.getInputStream(), UserEntity.class);
-
-		response.setContentType("application/json");
-		response.setCharacterEncoding("utf-8");
-
-		UserSignResponseDTO sign = UserSignResponseDTO.builder()
-														.email(user.getEmail())
-														.message("로그인 실패하였습니다. attemptAuthentication() - Fail")
-														.build();
-
-		objectMapper = new ObjectMapper();
-
-		String result = objectMapper.writeValueAsString(sign);
-		response.getWriter().write(result);
+			response.getWriter().write(result);
+		} catch (IOException ie) {
+			logger.error("전달받은 정보를 읽지 못했습니다. AuthenticationFilter - unsuccessfulAuthentication()", ie);
+		} catch (Exception e) {
+			logger.error("SERVER ERROR", e);
+		}
 	}
 }

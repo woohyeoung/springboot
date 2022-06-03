@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class ResponseDTO {
 	private HttpStatus status;

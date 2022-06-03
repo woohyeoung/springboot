@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @RequiredArgsConstructor
@@ -29,17 +28,20 @@ public class WebSecurityConfig {
 	}
 
 	@Bean
-	public PasswordEncoder passwordEncoder() {
+	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.addFilter(config.corsFilter()).csrf().disable()
+		http.httpBasic().disable().formLogin().disable().csrf().disable()
+				.addFilter(config.corsFilter())
 				.addFilter(new AuthenticationFilter(authenticationManagerFactoryBean().getObject(), tokenProvider, tokenRepository))
 				.addFilter(new AuthorizationFilter(authenticationManagerFactoryBean().getObject(), tokenProvider, customUserDetailService))
-					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-				.and().authorizeRequests()
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+				.and()
+				.authorizeRequests()
+					.antMatchers("/api/board/**").access("hasRole('USER')")
 					.antMatchers("/**").permitAll();
 		return http.build();
 	}
