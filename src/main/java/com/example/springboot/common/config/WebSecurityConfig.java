@@ -3,6 +3,7 @@ package com.example.springboot.common.config;
 import com.example.springboot.common.security.auth.CustomUserDetailService;
 import com.example.springboot.common.security.filter.AuthenticationFilter;
 import com.example.springboot.common.security.filter.AuthorizationFilter;
+import com.example.springboot.common.security.jwt.TokenProperties;
 import com.example.springboot.common.security.jwt.TokenProvider;
 import com.example.springboot.user.domain.token.TokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +43,10 @@ public class WebSecurityConfig {
 				.and()
 				.authorizeRequests()
 					.antMatchers("/api/board/**").access("hasRole('USER')")
-					.antMatchers("/**").permitAll();
+					.antMatchers("/**").permitAll()
+				.and()
+				.logout()
+				.logoutUrl("/my/logout");
 		return http.build();
 	}
 }

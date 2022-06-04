@@ -44,12 +44,13 @@ public class UserController {
 //		return new ResponseDTO().of(HttpStatus.OK, Payload.SIGN_IN_OK, result.getMessage());
 //	}
 
-	@PostMapping("/logout")
+	@GetMapping("/logout")
 	public ResponseDTO logout(@RequestBody UserRequestDTO userRequestDTO) {
 		logger.info("UserController logout method ...");
 
 		UserSignResponseDTO result = userService.logout(userRequestDTO);
 
+		if(result.getKey() == 0) return new ResponseDTO().fail(HttpStatus.BAD_REQUEST, Payload.SIGN_OUT_FAIL + result.getMessage());
 		if(result.getKey() == 1) return new ResponseDTO().fail(HttpStatus.INTERNAL_SERVER_ERROR, Payload.SERVER_ERROR + "UserController logout()");
 
 		return new ResponseDTO().of(HttpStatus.OK, Payload.SIGN_OUT_OK, result.getMessage());

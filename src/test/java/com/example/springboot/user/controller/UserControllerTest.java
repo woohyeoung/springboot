@@ -199,20 +199,13 @@ class UserControllerTest {
 
 		// when
 		String token =  String.valueOf(responseEntity2.getHeaders().get("Authorization"));
-		String refresh = String.valueOf(responseEntity2.getHeaders().get("RefreshToken"));
 		System.out.println(token);
-		System.out.println(refresh);
-		String answer = "";
 
 		UserRequestDTO userRequestDTO = UserRequestDTO.builder().email(em).build();
 
-		if(tokenProvider.validateToken(token.replace("Bearer ", ""))) answer = "ok";
-		if(tokenProvider.validateToken(refresh.replace("Refresh ", ""))) answer += "2";
-		ResponseEntity<String> responseEntity = restTemplate.postForEntity(url + "/logout", userRequestDTO, String.class);
+		ResponseEntity<String> responseEntity = restTemplate.getForEntity(url + "/logout", String.class, userRequestDTO);
 
-		System.out.println(responseEntity.getBody());
 		// then
-		assertThat(tokenProvider.validateToken(token.replace("Bearer ", ""))).isEqualTo(false);
-		assertThat(answer).isEqualTo("ok2");
+		System.out.println(responseEntity.getBody());
 	}
 }
