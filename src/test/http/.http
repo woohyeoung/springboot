@@ -1,0 +1,37 @@
+#User Authentication / Authorization Test
+#sign - login - token generate - token reissuance - logout/token delete
+
+###
+POST http://localhost:8080/sign
+Content-Type: application/json
+
+{
+  "email": "test123@example.com",
+  "password": "test123",
+  "name": "test"
+}
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "email": "test123@example.com",
+  "password": "test123"
+}
+
+###
+POST http://localhost:8080/token_check
+Authorization: Bearer
+
+###
+POST http://localhost:8080/token_check
+Authorization: Refresh
+
+###
+POST http://localhost:8080/logout
+Content-Type: application/json
+
+{
+  "email": "test123@example.com"
+}

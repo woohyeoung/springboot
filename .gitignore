@@ -15,5 +15,3 @@ out/
 src/main/resources/application.properties
 src/main/java/com/example/springboot/common/security/jwt/TokenProperties.java
 src/main/java/com/example/springboot/common/config/ConfigProperties.java
-# test
-http

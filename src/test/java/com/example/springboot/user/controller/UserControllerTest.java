@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -106,7 +108,7 @@ class UserControllerTest {
 		ResponseEntity<Object> responseEntity1 = restTemplate.postForEntity(url + "/sign", signUp, Object.class);
 
 		// then
-		ResponseEntity<Object> responseEntity2 = restTemplate.postForEntity(url + "/login", signIn, Object.class);
+		ResponseEntity<String> responseEntity2 = restTemplate.postForEntity(url + "/login", signIn, String.class);
 		System.out.println(responseEntity1.getBody());
 		System.out.println(responseEntity2.getBody());
 		System.out.println(responseEntity2.getHeaders().get("Authorization"));
@@ -146,7 +148,37 @@ class UserControllerTest {
 		assertThat(responseEntity2.getHeaders().get("Authorization")).isEqualTo(null);
 	}
 
+	@Test
+	void 토큰_재발급() {
+		// given
+		String em = "test123";
+		String pw = "test123";
+		String nm = "test123";
 
+		UserEntity user = UserEntity.builder()
+				.email(em).password(pw).name(nm).build();
+
+		String url = "http://localhost:8080";
+
+		// when
+		restTemplate.postForEntity(url + "/sign", user, String.class);
+		ResponseEntity<String> responseEntity2 = restTemplate.postForEntity(url + "/login", user, String.class);
+
+		String refresh = String.valueOf(responseEntity2.getHeaders().get("RefreshToken"));
+
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.add("RefreshToken", refresh);
+
+		HttpEntity<String> request = new HttpEntity<>("", httpHeaders);
+
+		Object response = restTemplate.postForObject(url + "/token_check", request, String.class);
+
+		// then
+		System.out.println(refresh);
+		System.out.println(response);
+//		assertThat()
+
+	}
 	@Test
 	void 로그아웃() {
 		// given
@@ -182,27 +214,5 @@ class UserControllerTest {
 		// then
 		assertThat(tokenProvider.validateToken(token.replace("Bearer ", ""))).isEqualTo(false);
 		assertThat(answer).isEqualTo("ok2");
-	}
-	@Test
-	void 토큰_재발급() {
-		// given
-		String em = "test123";
-		String pw = "test123";
-		String nm = "test123";
-
-		UserEntity user = UserEntity.builder()
-				.email(em).password(pw).name(nm).build();
-
-		// when
-		FirstTimeTokenDTO firstTimeTokenDTO = tokenProvider.generateToken(user.getEmail());
-		String token = firstTimeTokenDTO.getAccessToken();
-		String compare = tokenProvider.generateAccessToken("helloWorld");
-
-//		String value = tokenRepository.findByEmail(user.getEmail()).getAccessToken();
-		// then
-//		System.out.println(token);
-//		System.out.println(value);
-//		assertThat(value).isNotEqualTo(compare);
-
 	}
 }
