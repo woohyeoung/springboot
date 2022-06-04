@@ -2,6 +2,7 @@ package com.example.springboot.user.controller;
 
 import com.example.springboot.common.response.Payload;
 import com.example.springboot.common.response.ResponseDTO;
+import com.example.springboot.common.security.jwt.TokenProperties;
 import com.example.springboot.user.model.user.UserRequestDTO;
 import com.example.springboot.user.model.user.UserSignInRequestDTO;
 import com.example.springboot.user.model.user.UserSignResponseDTO;
@@ -52,5 +53,12 @@ public class UserController {
 		if(result.getKey() == 1) return new ResponseDTO().fail(HttpStatus.INTERNAL_SERVER_ERROR, Payload.SERVER_ERROR + "UserController logout()");
 
 		return new ResponseDTO().of(HttpStatus.OK, Payload.SIGN_OUT_OK, result.getMessage());
+	}
+
+	@PostMapping(value = "/token_check")
+	public ResponseDTO tokenCheck() {
+		logger.info("tokenCheck() ...");
+
+		return new ResponseDTO().of(HttpStatus.OK, "");
 	}
 }

@@ -7,6 +7,7 @@ import com.example.springboot.user.domain.token.TokenRepository;
 import com.example.springboot.user.domain.user.UserEntity;
 import com.example.springboot.user.domain.user.UserRepository;
 import com.example.springboot.user.model.token.FirstTimeTokenDTO;
+import com.example.springboot.user.model.user.UserRequestDTO;
 import com.example.springboot.user.model.user.UserSignInRequestDTO;
 import com.example.springboot.user.model.user.UserSignResponseDTO;
 import com.example.springboot.user.model.user.UserSignUpRequestDTO;
@@ -102,10 +103,10 @@ class UserControllerTest {
 		UserSignInRequestDTO signIn = UserSignInRequestDTO.builder().email(em).password(pw).build();
 
 		// when
-		ResponseEntity<String> responseEntity1 = restTemplate.postForEntity(url + "/sign", signUp, String.class);
+		ResponseEntity<Object> responseEntity1 = restTemplate.postForEntity(url + "/sign", signUp, Object.class);
 
 		// then
-		ResponseEntity<String> responseEntity2 = restTemplate.postForEntity(url + "/login", signIn, String.class);
+		ResponseEntity<Object> responseEntity2 = restTemplate.postForEntity(url + "/login", signIn, Object.class);
 		System.out.println(responseEntity1.getBody());
 		System.out.println(responseEntity2.getBody());
 		System.out.println(responseEntity2.getHeaders().get("Authorization"));
@@ -130,11 +131,11 @@ class UserControllerTest {
 		UserSignInRequestDTO signIn1 = UserSignInRequestDTO.builder().email("test@examle.com").password(pw).build();
 		UserSignInRequestDTO signIn2 = UserSignInRequestDTO.builder().email(em).password("test").build();
 		// when
-		ResponseEntity<String> responseEntity = restTemplate.postForEntity(url + "/sign", signUp, String.class);
+		ResponseEntity<Object> responseEntity = restTemplate.postForEntity(url + "/sign", signUp, Object.class);
 
 		// then
-		ResponseEntity<String> responseEntity1 = restTemplate.postForEntity(url + "/login", signIn1, String.class);
-		ResponseEntity<String> responseEntity2 = restTemplate.postForEntity(url + "/login", signIn2, String.class);
+		ResponseEntity<Object> responseEntity1 = restTemplate.postForEntity(url + "/login", signIn1, Object.class);
+		ResponseEntity<Object> responseEntity2 = restTemplate.postForEntity(url + "/login", signIn2, Object.class);
 
 		System.out.println(responseEntity.getBody());
 		System.out.println(responseEntity1.getBody());
@@ -162,7 +163,7 @@ class UserControllerTest {
 		UserSignInRequestDTO signIn = UserSignInRequestDTO.builder().email(em).password(pw).build();
 
 		restTemplate.postForEntity(url + "/sign", signUp, String.class);
-		ResponseEntity<ResponseDTO> responseEntity2 = restTemplate.postForEntity(url + "/login", signIn, ResponseDTO.class);
+		ResponseEntity<String> responseEntity2 = restTemplate.postForEntity(url + "/login", signIn, String.class);
 
 		// when
 		String token =  String.valueOf(responseEntity2.getHeaders().get("Authorization"));
@@ -170,12 +171,16 @@ class UserControllerTest {
 		System.out.println(token);
 		System.out.println(refresh);
 		String answer = "";
-		if(tokenProvider.validateToken(token)) answer = "ok";
-		if(tokenProvider.validateToken(refresh)) answer += "2";
-		restTemplate.postForEntity(url + "/logout", token, String.class);
 
+		UserRequestDTO userRequestDTO = UserRequestDTO.builder().email(em).build();
+
+		if(tokenProvider.validateToken(token.replace("Bearer ", ""))) answer = "ok";
+		if(tokenProvider.validateToken(refresh.replace("Refresh ", ""))) answer += "2";
+		ResponseEntity<String> responseEntity = restTemplate.postForEntity(url + "/logout", userRequestDTO, String.class);
+
+		System.out.println(responseEntity.getBody());
 		// then
-		assertThat(tokenProvider.validateToken(token)).isEqualTo(false);
+		assertThat(tokenProvider.validateToken(token.replace("Bearer ", ""))).isEqualTo(false);
 		assertThat(answer).isEqualTo("ok2");
 	}
 	@Test

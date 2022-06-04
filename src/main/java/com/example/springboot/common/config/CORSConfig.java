@@ -1,5 +1,6 @@
 package com.example.springboot.common.config;
 
+import com.example.springboot.common.security.jwt.TokenProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -14,11 +15,11 @@ public class CORSConfig {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowCredentials(true);
 		config.addAllowedOriginPattern("*");
-//		config.addAllowedOrigin("http://localhost:3000");
+//		config.addAllowedOrigin(ConfigProperties.CLIENT_URL);
 		config.addAllowedHeader("*");
 		config.addAllowedMethod("*");
-		config.addExposedHeader("Authorization");
-		config.addExposedHeader("RefreshToken");
+		config.addExposedHeader(TokenProperties.HEADER_KEY_ACCESS);
+		config.addExposedHeader(TokenProperties.HEADER_KEY_REFRESH);
 		source.registerCorsConfiguration("/**", config);
 		return new CorsFilter(source);
 	}

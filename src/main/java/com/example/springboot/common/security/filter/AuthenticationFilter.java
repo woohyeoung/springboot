@@ -68,7 +68,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 		try {
 			CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
 			TokenEntity tokenEntity = tokenRepository.findByEmail(userDetails.getUsername());
-
 			if(tokenEntity != null) {
 				logger.info("Existing Refresh Token Check - Success");
 				String accessToken = tokenProvider.generateAccessToken(userDetails.getUsername());
@@ -81,21 +80,20 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 																			.build());
 
 				response.getWriter().write(result);
-				return;
 			}
-			FirstTimeTokenDTO firstTimeTokenDTO = tokenProvider.generateToken(userDetails.getUsername());
+			else {
+				FirstTimeTokenDTO firstTimeTokenDTO = tokenProvider.generateToken(userDetails.getUsername());
+				if(!tokenProvider.saveRefresh(firstTimeTokenDTO.getReIssuanceTokenDTO())) logger.warn("Token Set Save to Token Repository - Fail");
 
-			if(!tokenProvider.saveRefresh(firstTimeTokenDTO.getReIssuanceTokenDTO())) logger.warn("Token Set Save to Token Repository - Fail");
+				response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + firstTimeTokenDTO.getAccessToken());
+				response.addHeader(TokenProperties.HEADER_KEY_REFRESH,TokenProperties.SECRET_TYPE_REFRESH + firstTimeTokenDTO.getReIssuanceTokenDTO().getRefreshToken());
 
-			response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + firstTimeTokenDTO.getAccessToken());
-			response.addHeader(TokenProperties.HEADER_KEY_REFRESH,TokenProperties.SECRET_TYPE_REFRESH + firstTimeTokenDTO.getReIssuanceTokenDTO().getRefreshToken());
-
-			String result = objectMapper.writeValueAsString(ResponseDTO.builder()
-																		.status(HttpStatus.OK)
-																		.message(Payload.SIGN_IN_OK)
-																		.build());
-
-			response.getWriter().write(result);
+				String result = objectMapper.writeValueAsString(ResponseDTO.builder()
+																			.status(HttpStatus.OK)
+																			.message(Payload.SIGN_IN_OK)
+																			.build());
+				response.getWriter().write(result);
+			}
 		} catch (IOException ie) {
 			logger.error("유저 정보를 읽지 못했습니다. AuthenticationFilter - successfulAuthentication()", ie);
 		} catch (NullPointerException ne) {

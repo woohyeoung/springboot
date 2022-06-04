@@ -5,6 +5,7 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
+@ToString
 public class FirstTimeTokenDTO {
 	private String accessToken;
 	private ReIssuanceTokenDTO reIssuanceTokenDTO;

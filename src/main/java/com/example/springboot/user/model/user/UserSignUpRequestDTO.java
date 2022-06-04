@@ -11,7 +11,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @NoArgsConstructor
 @ToString
 public class UserSignUpRequestDTO {
-
 	private String email, password, name;
 //	private final String roles;
 

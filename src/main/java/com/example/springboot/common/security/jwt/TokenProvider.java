@@ -6,26 +6,32 @@ import com.example.springboot.user.model.token.FirstTimeTokenDTO;
 import com.example.springboot.user.model.token.ReIssuanceTokenDTO;
 import com.example.springboot.user.model.token.ValidateTokenDTO;
 import io.jsonwebtoken.*;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
 
 @Component
-@RequiredArgsConstructor
 public class TokenProvider {
 	private static final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
-	private final TokenRepository tokenRepository;
 	private static final String headerKeyAccess = TokenProperties.HEADER_KEY_ACCESS;
 	private static final String typeKeyAccess = TokenProperties.SECRET_TYPE_ACCESS;
 	private static final String typeKeyRefresh = TokenProperties.SECRET_TYPE_REFRESH;
 	private static final long accessValidTime = TokenProperties.SECRET_TIME_ACCESS;
 	private static final long refreshValidTime = TokenProperties.SECRET_TIME_REFRESH;
-	private static final String secretKey = Base64.getEncoder().encodeToString(TokenProperties.SECRET_KEY.getBytes());
+	private String secretKey;
+	private TokenRepository tokenRepository;
+
+	@Autowired
+	public TokenProvider(TokenRepository tokenRepository) {
+		this.secretKey = Base64.getEncoder().encodeToString(TokenProperties.SECRET_KEY.getBytes());
+		this.tokenRepository = tokenRepository;
+	}
 
 	public FirstTimeTokenDTO generateToken(String userPk) {
 		logger.info("TokenProvider - generateToken() ...");
@@ -109,11 +115,13 @@ public class TokenProvider {
 	public boolean saveRefresh(ReIssuanceTokenDTO reIssuanceTokenDTO) {
 		logger.info("TokenController - saveRefresh() ...");
 		try {
-			tokenRepository.save(TokenEntity.builder()
-					.email(reIssuanceTokenDTO.getEmail())
-					.refreshToken(reIssuanceTokenDTO.getRefreshToken())
-					.build());
-			return true;
+			TokenEntity tokenEntity = tokenRepository.save(TokenEntity.builder()
+																		.email(reIssuanceTokenDTO.getEmail())
+																		.refreshToken(reIssuanceTokenDTO.getRefreshToken())
+																		.build());
+			if(tokenEntity.getEmail() != null) return true;
+		} catch (NullPointerException ne) {
+			logger.error("토큰 셋이 비어있습니다. TokenProvider - saveRefresh()", ne);
 		} catch (Exception e) {
 			logger.error("토큰 셋 저장 실패 TokenProvider - saveRefresh()", e);
 		}

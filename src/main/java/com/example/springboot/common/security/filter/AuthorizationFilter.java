@@ -28,8 +28,6 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 	private final TokenProvider tokenProvider;
 	private final CustomUserDetailService userDetailService;
 
-	private final ObjectMapper objectMapper = new ObjectMapper();
-
 	public AuthorizationFilter(AuthenticationManager authenticationManager, TokenProvider tokenProvider, CustomUserDetailService userDetailService) {
 		super(authenticationManager);
 		this.tokenProvider = tokenProvider;
@@ -57,22 +55,8 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 										authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 										SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-						response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + token);
-
-						String result = objectMapper.writeValueAsString(ResponseDTO.builder()
-																					.status(HttpStatus.OK)
-																					.message(" ACCESS "  + Payload.TOKEN_OK)
-																					.build());
-
-						response.getWriter().write(result);
 					} else {
 						logger.info("Access Token Validation - Fail");
-						String result = objectMapper.writeValueAsString(ResponseDTO.builder()
-																					.status(HttpStatus.BAD_REQUEST)
-																					.message(" ACCESS " + Payload.TOKEN_FAIL)
-																					.build());
-
-						response.getWriter().write(result);
 					}
 					filterChain.doFilter(request, response);
 					return;
@@ -82,22 +66,8 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 						String accessToken = tokenProvider.generateAccessToken(tokenProvider.getUserPk(token));
 
 						response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + accessToken);
-
-
-						String result = objectMapper.writeValueAsString(ResponseDTO.builder()
-																					.status(HttpStatus.OK)
-																					.message(" REFRESH " + Payload.TOKEN_OK)
-																					.build());
-
-						response.getWriter().write(result);
 					} else {
 						logger.info("Refresh Token Validation - Fail");
-						String result = objectMapper.writeValueAsString(ResponseDTO.builder()
-																					.status(HttpStatus.BAD_REQUEST)
-																					.message(" REFRESH " + Payload.TOKEN_FAIL)
-																					.build());
-
-						response.getWriter().write(result);
 					}
 					filterChain.doFilter(request, response);
 					return;
@@ -113,12 +83,5 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 		} catch (Exception e) {
 			logger.error("사용자 인증을 확인하지 못해 인가할 수 없습니다. AuthorizationFilter - doFilterInternal()", e);
 		}
-		String result = objectMapper.writeValueAsString(ResponseDTO.builder()
-																	.status(HttpStatus.INTERNAL_SERVER_ERROR)
-																	.message(Payload.TOKEN_FAIL)
-																	.build());
-
-		response.getWriter().write(result);
-		filterChain.doFilter(request, response);
 	}
 }
