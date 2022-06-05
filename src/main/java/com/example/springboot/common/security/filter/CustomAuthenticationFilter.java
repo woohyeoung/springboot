@@ -24,6 +24,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 @RequiredArgsConstructor
@@ -63,33 +64,34 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		logger.info("AuthenticationFilter - successfulAuthentication() ...");
 
 		try {
-			CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
-			TokenEntity tokenEntity = tokenRepository.findByEmail(userDetails.getUsername());
+//			CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
+			String principal = String.valueOf(authResult.getPrincipal());
+			TokenEntity tokenEntity = tokenRepository.findByEmail(principal);
 			if(tokenEntity != null) {
 				logger.info("Existing Refresh Token Check - Success");
-				String accessToken = tokenProvider.generateAccessToken(userDetails.getUsername());
+				String accessToken = tokenProvider.generateAccessToken(principal);
 
 				response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + accessToken);
 
+				String payMsg = URLDecoder.decode(Payload.SIGN_IN_OK, "UTF-8");
 				String result = objectMapper.writeValueAsString(ResponseDTO.builder()
 																			.status(HttpStatus.OK)
-																			.message(Payload.SIGN_IN_OK)
+																			.message(payMsg)
 																			.build());
-				result = URLEncoder.encode(result, "UTF-8");
 				response.getWriter().write(result);
 			}
 			else {
-				FirstTimeTokenDTO firstTimeTokenDTO = tokenProvider.generateToken(userDetails.getUsername());
+				FirstTimeTokenDTO firstTimeTokenDTO = tokenProvider.generateToken(principal);
 				if(!tokenProvider.saveRefresh(firstTimeTokenDTO.getReIssuanceTokenDTO())) logger.warn("Token Set Save to Token Repository - Fail");
 
 				response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + firstTimeTokenDTO.getAccessToken());
 				response.addHeader(TokenProperties.HEADER_KEY_REFRESH,TokenProperties.SECRET_TYPE_REFRESH + firstTimeTokenDTO.getReIssuanceTokenDTO().getRefreshToken());
 
+				String payMsg = URLDecoder.decode(Payload.SIGN_IN_OK, "UTF-8");
 				String result = objectMapper.writeValueAsString(ResponseDTO.builder()
 																			.status(HttpStatus.OK)
-																			.message(Payload.SIGN_IN_OK)
+																			.message(payMsg)
 																			.build());
-				result = URLEncoder.encode(result, "UTF-8");
 				response.getWriter().write(result);
 			}
 		} catch (IOException ie) {
@@ -101,22 +103,22 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		}
 	}
 
-//	@Override
-//	protected void unsuccessfulAuthentication(HttpServletRequest request,
-//											  HttpServletResponse response,
-//											  AuthenticationException failed) throws ServletException {
-//		logger.info("AuthenticationFilter - unsuccessfulAuthentication() ...");
-//		try {
-//			String result = objectMapper.writeValueAsString(ResponseDTO.builder()
-//																		.status(HttpStatus.BAD_REQUEST)
-//																		.message(Payload.SIGN_IN_FAIL)
-//																		.build());
-//
-//			response.getWriter().write(result);
-//		} catch (IOException ie) {
-//			logger.error("전달받은 정보를 읽지 못했습니다. CustomAuthenticationFilter - unsuccessfulAuthentication()", ie);
-//		} catch (Exception e) {
-//			logger.error("SERVER ERROR CustomAuthenticationFilter - unsuccessfulAuthentication()", e);
-//		}
-//	}
+	@Override
+	protected void unsuccessfulAuthentication(HttpServletRequest request,
+											  HttpServletResponse response,
+											  AuthenticationException failed) throws ServletException {
+		logger.info("AuthenticationFilter - unsuccessfulAuthentication() ...");
+		try {
+			String payMsg = URLDecoder.decode(Payload.SIGN_IN_FAIL, "UTF-8");
+			String result = objectMapper.writeValueAsString(ResponseDTO.builder()
+																		.status(HttpStatus.BAD_REQUEST)
+																		.message(payMsg)
+																		.build());
+			response.getWriter().write(result);
+		} catch (IOException ie) {
+			logger.error("전달받은 정보를 읽지 못했습니다. CustomAuthenticationFilter - unsuccessfulAuthentication()", ie);
+		} catch (Exception e) {
+			logger.error("SERVER ERROR CustomAuthenticationFilter - unsuccessfulAuthentication()", e);
+		}
+	}
 }

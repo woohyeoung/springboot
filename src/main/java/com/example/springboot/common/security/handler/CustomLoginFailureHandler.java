@@ -15,6 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 @Service("loginFailureHandler")
@@ -42,7 +43,7 @@ public class CustomLoginFailureHandler implements AuthenticationFailureHandler {
 																	.status(HttpStatus.OK)
 																	.message(message)
 																	.build());
-		result= URLEncoder.encode(result,"UTF-8");
+		result= URLDecoder.decode(result,"UTF-8");
 		response.getWriter().write(result);
 	}
 }
