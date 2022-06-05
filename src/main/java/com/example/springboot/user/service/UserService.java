@@ -1,39 +1,34 @@
 package com.example.springboot.user.service;
 
+import com.example.springboot.common.security.auth.BcryptHandler;
 import com.example.springboot.user.domain.user.UserEntity;
 import com.example.springboot.user.domain.user.UserRepository;
 import com.example.springboot.user.model.user.UserRequestDTO;
-import com.example.springboot.user.model.user.UserSignInRequestDTO;
 import com.example.springboot.user.model.user.UserSignResponseDTO;
 import com.example.springboot.user.model.user.UserSignUpRequestDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
 	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 	private final UserRepository userRepository;
-	private final BCryptPasswordEncoder passwordEncoder;
+	private final BcryptHandler bcryptHandler;
 
 	@Autowired
-	public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+	public UserService(UserRepository userRepository, BcryptHandler bcryptHandler) {
 		this.userRepository = userRepository;
-		this.passwordEncoder = passwordEncoder;
-	}
-
-	public boolean validateUser(String email) {
-		return userRepository.existsByEmail(email);
+		this.bcryptHandler = bcryptHandler;
 	}
 
 	public UserSignResponseDTO join(UserSignUpRequestDTO sign) {
 		logger.info("UserService join() ...");
 		try {
-			if(!validateUser(sign.getEmail())) {
-				UserEntity entity = userRepository.save(sign.toEntity(passwordEncoder));
+			if(userRepository.existsByEmail(sign.getEmail())) {
+				UserEntity entity = userRepository.save(sign.toEntity(bcryptHandler.passwordEncode(sign.getPassword())));
 				if(entity.getEmail() != null) return UserSignResponseDTO.builder().key(2).message("Success").build();
 
 				return UserSignResponseDTO.builder().key(0).message("회원가입이 정상적으로 이루어지지 않았습니다.").build();

@@ -2,7 +2,6 @@ package com.example.springboot.user.model.user;
 
 import com.example.springboot.user.domain.user.UserEntity;
 import lombok.*;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Getter
 @Setter
@@ -14,10 +13,10 @@ public class UserSignUpRequestDTO {
 	private String email, password, name;
 //	private final String roles;
 
-	public UserEntity toEntity(BCryptPasswordEncoder passwordEncoder) {
+	public UserEntity toEntity(String pw) {
 		return UserEntity.builder()
 						.email(email)
-						.password(passwordEncoder.encode(password))
+						.password(pw)
 						.name(name)
 //						.roles(roles)
 						.build();
