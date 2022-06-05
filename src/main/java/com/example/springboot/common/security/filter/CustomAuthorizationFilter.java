@@ -1,15 +1,11 @@
 package com.example.springboot.common.security.filter;
 
-import com.example.springboot.common.response.Payload;
-import com.example.springboot.common.response.ResponseDTO;
 import com.example.springboot.common.security.jwt.TokenProperties;
 import com.example.springboot.common.security.jwt.TokenProvider;
 import com.example.springboot.common.security.auth.CustomUserDetailService;
 import com.example.springboot.user.model.token.ValidateTokenDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,12 +19,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class AuthorizationFilter extends BasicAuthenticationFilter {
-	private static final Logger logger = LoggerFactory.getLogger(AuthorizationFilter.class);
+public class CustomAuthorizationFilter extends BasicAuthenticationFilter {
+	private static final Logger logger = LoggerFactory.getLogger(CustomAuthorizationFilter.class);
 	private final TokenProvider tokenProvider;
 	private final CustomUserDetailService userDetailService;
 
-	public AuthorizationFilter(AuthenticationManager authenticationManager, TokenProvider tokenProvider, CustomUserDetailService userDetailService) {
+	public CustomAuthorizationFilter(AuthenticationManager authenticationManager, TokenProvider tokenProvider, CustomUserDetailService userDetailService) {
 		super(authenticationManager);
 		this.tokenProvider = tokenProvider;
 		this.userDetailService = userDetailService;
@@ -76,12 +72,11 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 					logger.warn("Access/Refresh Token Validation - Fail");
 
 					filterChain.doFilter(request, response);
-					return;
 			}
 		} catch (NullPointerException ne) {
-			logger.error("토큰 값이 비어있습니다. AuthorizationFilter - doFilterInternal()");
+			logger.error("토큰 값이 비어있습니다. CustomAuthorizationFilter - doFilterInternal()");
 		} catch (Exception e) {
-			logger.error("사용자 인증을 확인하지 못해 인가할 수 없습니다. AuthorizationFilter - doFilterInternal()", e);
+			logger.error("사용자 인증을 확인하지 못해 인가할 수 없습니다. CustomAuthorizationFilter - doFilterInternal()", e);
 		}
 	}
 }

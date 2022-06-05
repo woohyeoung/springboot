@@ -14,11 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -26,11 +24,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
 
 @RequiredArgsConstructor
-public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-	private final Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);
-	private final AuthenticationManager authenticationManager;
+public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+	private final Logger logger = LoggerFactory.getLogger(CustomAuthenticationFilter.class);
+	private final CustomAuthenticationManager authenticationManager;
 	private final TokenProvider tokenProvider;
 	private final TokenRepository tokenRepository;
 	private ObjectMapper objectMapper;
@@ -46,15 +45,13 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 			return authenticationManager.authenticate(authenticationToken);
 		} catch (IOException ie) {
-			logger.error("유저 정보를 읽지 못했습니다. AuthenticationFilter - attemptAuthentication()", ie);
-		} catch (UsernameNotFoundException ue) {
-			logger.error("받은 유저의 정보와 일치하는 유저가 존재하지 않습니다. AuthenticationFilter - attemptAuthentication()", ue);
+			logger.error("유저 정보를 읽지 못했습니다. CustomAuthenticationFilter - attemptAuthentication()", ie);
 		} catch (NullPointerException ne) {
-			logger.error("받은 유저 정보가 비어 있습니다. AuthenticationFilter - attemptAuthentication()", ne);
+			logger.error("받은 유저 정보가 비어 있습니다. CustomAuthenticationFilter - attemptAuthentication()", ne);
 		} catch (AuthenticationException ae) {
-			logger.error("자격 증명에 실패하였습니다. AuthenticationFilter - attemptAuthentication()", ae);
+			logger.error("자격 증명에 실패하였습니다. CustomAuthenticationFilter - attemptAuthentication()", ae);
 		} catch (Exception e) {
-			logger.error("SERVER ERROR AuthenticationFilter - attemptAuthentication()", e);
+			logger.error("SERVER ERROR CustomAuthenticationFilter - attemptAuthentication()", e);
 		}
 		return null;
 	}
@@ -78,7 +75,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 																			.status(HttpStatus.OK)
 																			.message(Payload.SIGN_IN_OK)
 																			.build());
-
+				result = URLEncoder.encode(result, "UTF-8");
 				response.getWriter().write(result);
 			}
 			else {
@@ -92,34 +89,34 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 																			.status(HttpStatus.OK)
 																			.message(Payload.SIGN_IN_OK)
 																			.build());
+				result = URLEncoder.encode(result, "UTF-8");
 				response.getWriter().write(result);
 			}
 		} catch (IOException ie) {
-			logger.error("유저 정보를 읽지 못했습니다. AuthenticationFilter - successfulAuthentication()", ie);
+			logger.error("유저 정보를 읽지 못했습니다. CustomAuthenticationFilter - successfulAuthentication()", ie);
 		} catch (NullPointerException ne) {
-			logger.error("받은 유저 정보가 비어 있습니다. AuthenticationFilter - successfulAuthentication()", ne);
+			logger.error("받은 유저 정보가 비어 있습니다. CustomAuthenticationFilter - successfulAuthentication()", ne);
 		} catch (Exception e) {
-			logger.error("SERVER ERROR AuthenticationFilter - successfulAuthentication()", e);
+			logger.error("SERVER ERROR CustomAuthenticationFilter - successfulAuthentication()", e);
 		}
 	}
 
-	@Override
-	protected void unsuccessfulAuthentication(HttpServletRequest request,
-											  HttpServletResponse response,
-											  AuthenticationException failed) throws ServletException {
-		System.out.println("오니?");
-		logger.info("AuthenticationFilter - unsuccessfulAuthentication() ...");
-		try {
-			String result = objectMapper.writeValueAsString(ResponseDTO.builder()
-																		.status(HttpStatus.BAD_REQUEST)
-																		.message(Payload.SIGN_IN_FAIL)
-																		.build());
-
-			response.getWriter().write(result);
-		} catch (IOException ie) {
-			logger.error("전달받은 정보를 읽지 못했습니다. AuthenticationFilter - unsuccessfulAuthentication()", ie);
-		} catch (Exception e) {
-			logger.error("SERVER ERROR", e);
-		}
-	}
+//	@Override
+//	protected void unsuccessfulAuthentication(HttpServletRequest request,
+//											  HttpServletResponse response,
+//											  AuthenticationException failed) throws ServletException {
+//		logger.info("AuthenticationFilter - unsuccessfulAuthentication() ...");
+//		try {
+//			String result = objectMapper.writeValueAsString(ResponseDTO.builder()
+//																		.status(HttpStatus.BAD_REQUEST)
+//																		.message(Payload.SIGN_IN_FAIL)
+//																		.build());
+//
+//			response.getWriter().write(result);
+//		} catch (IOException ie) {
+//			logger.error("전달받은 정보를 읽지 못했습니다. CustomAuthenticationFilter - unsuccessfulAuthentication()", ie);
+//		} catch (Exception e) {
+//			logger.error("SERVER ERROR CustomAuthenticationFilter - unsuccessfulAuthentication()", e);
+//		}
+//	}
 }
