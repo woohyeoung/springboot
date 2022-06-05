@@ -14,6 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 @Service("logoutSuccessHandler")
@@ -28,11 +29,11 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 			try {
 				request.getSession().invalidate();
 
+				String payMsg = URLDecoder.decode(Payload.SIGN_OUT_OK, "UTF-8");
 				String result = objectMapper.writeValueAsString(ResponseDTO.builder()
 																			.status(HttpStatus.OK)
-																			.message(Payload.SIGN_OUT_OK)
+																			.message(payMsg)
 																			.build());
-				result = URLEncoder.encode(result, "UTF-8");
 				response.getWriter().write(result);
 				return;
 			} catch (Exception e) {
@@ -40,13 +41,12 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 			}
 		}
 		logger.info("Authentication is Null CustomLogoutSuccessHandler - onLogoutSuccess()");
-		response.getWriter().write(
-				objectMapper.writeValueAsString(
-						ResponseDTO.builder()
-									.status(HttpStatus.INTERNAL_SERVER_ERROR)
-									.message(Payload.SIGN_OUT_FAIL)
-									.build()
-				)
-		);
+
+		String payMsg = URLDecoder.decode(Payload.SIGN_OUT_FAIL, "UTF-8");
+		String result = objectMapper.writeValueAsString(ResponseDTO.builder()
+																	.status(HttpStatus.INTERNAL_SERVER_ERROR)
+																	.message(payMsg)
+																	.build());
+		response.getWriter().write(result);
 	}
 }

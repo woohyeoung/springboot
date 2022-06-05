@@ -27,7 +27,7 @@ public class UserService {
 	public UserSignResponseDTO join(UserSignUpRequestDTO sign) {
 		logger.info("UserService join() ...");
 		try {
-			if(userRepository.existsByEmail(sign.getEmail())) {
+			if(!bcryptHandler.emailValid(sign.getEmail())) {
 				UserEntity entity = userRepository.save(sign.toEntity(bcryptHandler.passwordEncode(sign.getPassword())));
 				if(entity.getEmail() != null) return UserSignResponseDTO.builder().key(2).message("Success").build();
 
