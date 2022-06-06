@@ -13,6 +13,8 @@
 > Merge: 01/01 12:00, A to B
 >
 > Refactor: 01/01, A for B
+> 
+> Test: 01/01, class - method
 
 ### Log
 
