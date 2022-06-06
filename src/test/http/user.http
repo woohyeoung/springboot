@@ -21,7 +21,7 @@ POST http://localhost:8080/token_check
 Authorization: Refresh
 
 ###
-GET http://localhost:8080/logout
+POST http://localhost:8080/my/logout
 Authorization: Bearer
 Content-Type: application/json
 

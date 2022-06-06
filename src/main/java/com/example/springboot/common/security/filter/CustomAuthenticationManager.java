@@ -1,9 +1,9 @@
 package com.example.springboot.common.security.filter;
 
 import com.example.springboot.common.security.handler.BcryptHandler;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -11,14 +11,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class CustomAuthenticationManager implements AuthenticationManager {
 	private static final Logger logger = LoggerFactory.getLogger(CustomAuthenticationManager.class);
 	private final BcryptHandler bcryptHandler;
-
-	@Autowired
-	public CustomAuthenticationManager(BcryptHandler bcryptHandler) {
-		this.bcryptHandler = bcryptHandler;
-	}
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -29,11 +25,11 @@ public class CustomAuthenticationManager implements AuthenticationManager {
 
 			if(email == null || email.equals("")) {
 				logger.warn("User Email validate - Empty or null");
-				return null;
+				throw new NullPointerException();
 			}
 			else if(password == null || password.equals("")) {
 				logger.warn("User Password validate - Empty or null");
-				return null;
+				throw new NullPointerException();
 			}
 			else {
 				if(bcryptHandler.emailValid(email)) {
@@ -56,6 +52,6 @@ public class CustomAuthenticationManager implements AuthenticationManager {
 		} catch (Exception e) {
 			logger.error("SERVER ERROR CustomAuthenticationManager - authenticate()", e);
 		}
-		return null;
+		throw new NullPointerException();
 	}
 }
