@@ -1,8 +1,6 @@
 package com.example.springboot.common.security.handler;
 
 import com.example.springboot.common.response.Payload;
-import com.example.springboot.common.response.ResponseDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -19,7 +17,6 @@ import java.io.IOException;
 @Service
 public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 	private static final Logger logger = LoggerFactory.getLogger(CustomLogoutSuccessHandler.class);
-	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	@Override
 	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -28,12 +25,11 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 //			HttpSession session = request.getSession();
 //			session.invalidate();
 
-			String result = objectMapper.writeValueAsString(ResponseDTO.builder()
-					.status(HttpStatus.OK)
-					.message(Payload.SIGN_OUT_OK)
-					.build());
-			response.getWriter().write(result);
+			response.setContentType("text/html; charset=UTF-8");
+			response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.OK, Payload.SIGN_OUT_OK));
 			return;
+		} catch (IOException ie) {
+			logger.error("전달받은 정보를 읽지 못했습니다. CustomLogoutSuccessHandler - onLogoutSuccess()", ie);
 		} catch (Exception e) {
 			logger.error("SERVER ERROR CustomLogoutSuccessHandler - onLogoutSuccess()", e);
 		}
@@ -42,10 +38,7 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 //		}
 //		logger.info("Authentication is Null CustomLogoutSuccessHandler - onLogoutSuccess()");
 
-		String result = objectMapper.writeValueAsString(ResponseDTO.builder()
-																	.status(HttpStatus.INTERNAL_SERVER_ERROR)
-																	.message(Payload.SIGN_OUT_FAIL)
-																	.build());
-		response.getWriter().write(result);
+		response.setContentType("text/html; charset=UTF-8");
+		response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.INTERNAL_SERVER_ERROR, Payload.SIGN_OUT_FAIL));
 	}
 }

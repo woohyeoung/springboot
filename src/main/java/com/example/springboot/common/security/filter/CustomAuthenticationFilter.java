@@ -1,9 +1,9 @@
 package com.example.springboot.common.security.filter;
 
 import com.example.springboot.common.response.Payload;
-import com.example.springboot.common.response.ResponseDTO;
 import com.example.springboot.common.config.properties.TokenProperties;
 import com.example.springboot.common.security.handler.CustomLoginFailureHandler;
+import com.example.springboot.common.security.handler.ResponseHandler;
 import com.example.springboot.common.security.jwt.TokenProvider;
 import com.example.springboot.user.domain.token.TokenEntity;
 import com.example.springboot.user.domain.token.TokenRepository;
@@ -25,7 +25,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URLDecoder;
 
 @RequiredArgsConstructor
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -33,14 +32,12 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 	private final CustomAuthenticationManager authenticationManager;
 	private final TokenProvider tokenProvider;
 	private final TokenRepository tokenRepository;
-	private ObjectMapper objectMapper;
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
 		logger.info("AuthenticationFilter - attemptAuthentication() ...");
 		try {
-			objectMapper = new ObjectMapper();
-			UserEntity user = objectMapper.readValue(request.getInputStream(), UserEntity.class);
+			UserEntity user = new ObjectMapper().readValue(request.getInputStream(), UserEntity.class);
 
 			UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
 
@@ -70,18 +67,11 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 //			CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
 			String principal = String.valueOf(authResult.getPrincipal());
 			TokenEntity tokenEntity = tokenRepository.findByEmail(principal);
-			if(tokenEntity != null) {
+			if (tokenEntity != null) {
 				logger.info("Existing Refresh Token Check - Success");
 				String accessToken = tokenProvider.generateAccessToken(principal);
 
 				response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + accessToken);
-
-				String payMsg = URLDecoder.decode(Payload.SIGN_IN_OK, "UTF-8");
-				String result = objectMapper.writeValueAsString(ResponseDTO.builder()
-																			.status(HttpStatus.OK)
-																			.message(payMsg)
-																			.build());
-				response.getWriter().write(result);
 			}
 			else {
 				FirstTimeTokenDTO firstTimeTokenDTO = tokenProvider.generateToken(principal);
@@ -89,14 +79,9 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
 				response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + firstTimeTokenDTO.getAccessToken());
 				response.addHeader(TokenProperties.HEADER_KEY_REFRESH,TokenProperties.SECRET_TYPE_REFRESH + firstTimeTokenDTO.getReIssuanceTokenDTO().getRefreshToken());
-
-				String payMsg = URLDecoder.decode(Payload.SIGN_IN_OK, "UTF-8");
-				String result = objectMapper.writeValueAsString(ResponseDTO.builder()
-																			.status(HttpStatus.OK)
-																			.message(payMsg)
-																			.build());
-				response.getWriter().write(result);
 			}
+			response.setContentType("text/html; charset=UTF-8");
+			response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.OK, Payload.SIGN_IN_OK));
 		} catch (IOException ie) {
 			logger.error("유저 정보를 읽지 못했습니다. CustomAuthenticationFilter - successfulAuthentication()", ie);
 		} catch (NullPointerException ne) {
@@ -114,11 +99,9 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
 		try {
 			String message = new CustomLoginFailureHandler().onAuthenticationFailure(failed);
-			String result = objectMapper.writeValueAsString(ResponseDTO.builder()
-																		.status(HttpStatus.BAD_REQUEST)
-																		.message(Payload.SIGN_IN_FAIL + message)
-																		.build());
-			response.getWriter().write(result);
+
+			response.setContentType("text/html; charset=UTF-8");
+			response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.BAD_REQUEST, Payload.SIGN_IN_FAIL + message));
 		} catch (IOException ie) {
 			logger.error("전달받은 정보를 읽지 못했습니다. CustomAuthenticationFilter - unsuccessfulAuthentication()", ie);
 		} catch (Exception e) {
@@ -134,11 +117,9 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		try {
 			SecurityContextHolder.clearContext();
 			String message = new CustomLoginFailureHandler().onAuthenticationFailure(exception);
-			String result = objectMapper.writeValueAsString(ResponseDTO.builder()
-																		.status(HttpStatus.BAD_REQUEST)
-																		.message(Payload.SIGN_IN_FAIL + message)
-																		.build());
-			response.getWriter().write(result);
+
+			response.setContentType("text/html; charset=UTF-8");
+			response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.BAD_REQUEST, Payload.SIGN_IN_FAIL + message));
 		} catch (IOException ie) {
 			logger.error("전달받은 정보를 읽지 못했습니다. CustomAuthenticationFilter - unsuccessfulAuthentication()", ie);
 		} catch (Exception e) {
