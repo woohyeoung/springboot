@@ -1,4 +1,4 @@
-package com.example.springboot.common.security.auth;
+package com.example.springboot.common.security.handler;
 
 import com.example.springboot.user.domain.user.UserEntity;
 import com.example.springboot.user.domain.user.UserRepository;

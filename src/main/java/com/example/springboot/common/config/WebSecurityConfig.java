@@ -1,9 +1,11 @@
 package com.example.springboot.common.config;
 
+import com.example.springboot.common.config.properties.ConfigProperties;
 import com.example.springboot.common.security.auth.CustomUserDetailService;
 import com.example.springboot.common.security.filter.CustomAuthenticationFilter;
 import com.example.springboot.common.security.filter.CustomAuthenticationManager;
 import com.example.springboot.common.security.filter.CustomAuthorizationFilter;
+import com.example.springboot.common.security.filter.CustomCORSFilter;
 import com.example.springboot.common.security.handler.CustomLogoutSuccessHandler;
 import com.example.springboot.common.security.jwt.TokenProvider;
 import com.example.springboot.user.domain.token.TokenRepository;
@@ -17,7 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class WebSecurityConfig {
-	private final CORSConfig config;
+	private final CustomCORSFilter config;
 	private final TokenRepository tokenRepository;
 	private final TokenProvider tokenProvider;
 	private final CustomUserDetailService customUserDetailService;

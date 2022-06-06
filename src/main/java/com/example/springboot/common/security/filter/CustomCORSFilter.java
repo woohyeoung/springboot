@@ -1,6 +1,6 @@
-package com.example.springboot.common.config;
+package com.example.springboot.common.security.filter;
 
-import com.example.springboot.common.security.jwt.TokenProperties;
+import com.example.springboot.common.config.properties.TokenProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -8,7 +8,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 @Configuration
-public class CORSConfig {
+public class CustomCORSFilter {
 	@Bean
 	public CorsFilter corsFilter() {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -2,8 +2,7 @@ package com.example.springboot.common.security.filter;
 
 import com.example.springboot.common.response.Payload;
 import com.example.springboot.common.response.ResponseDTO;
-import com.example.springboot.common.security.auth.CustomUserDetails;
-import com.example.springboot.common.security.jwt.TokenProperties;
+import com.example.springboot.common.config.properties.TokenProperties;
 import com.example.springboot.common.security.jwt.TokenProvider;
 import com.example.springboot.user.domain.token.TokenEntity;
 import com.example.springboot.user.domain.token.TokenRepository;
@@ -25,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 
 @RequiredArgsConstructor
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {

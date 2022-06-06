@@ -1,7 +1,6 @@
 package com.example.springboot.common.security.filter;
 
-import com.example.springboot.common.security.auth.BcryptHandler;
-import lombok.RequiredArgsConstructor;
+import com.example.springboot.common.security.handler.BcryptHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,6 @@
 package com.example.springboot.user.service;
 
-import com.example.springboot.common.security.auth.BcryptHandler;
+import com.example.springboot.common.security.handler.BcryptHandler;
 import com.example.springboot.user.domain.user.UserEntity;
 import com.example.springboot.user.domain.user.UserRepository;
 import com.example.springboot.user.model.user.UserRequestDTO;

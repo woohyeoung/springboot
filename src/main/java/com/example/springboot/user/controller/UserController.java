@@ -2,9 +2,7 @@ package com.example.springboot.user.controller;
 
 import com.example.springboot.common.response.Payload;
 import com.example.springboot.common.response.ResponseDTO;
-import com.example.springboot.common.security.jwt.TokenProperties;
 import com.example.springboot.user.model.user.UserRequestDTO;
-import com.example.springboot.user.model.user.UserSignInRequestDTO;
 import com.example.springboot.user.model.user.UserSignResponseDTO;
 import com.example.springboot.user.model.user.UserSignUpRequestDTO;
 import com.example.springboot.user.service.UserService;

@@ -1,6 +1,6 @@
 package com.example.springboot.common.security.filter;
 
-import com.example.springboot.common.security.jwt.TokenProperties;
+import com.example.springboot.common.config.properties.TokenProperties;
 import com.example.springboot.common.security.jwt.TokenProvider;
 import com.example.springboot.common.security.auth.CustomUserDetailService;
 import com.example.springboot.user.model.token.ValidateTokenDTO;

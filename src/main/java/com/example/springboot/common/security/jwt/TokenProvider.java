@@ -1,5 +1,6 @@
 package com.example.springboot.common.security.jwt;
 
+import com.example.springboot.common.config.properties.TokenProperties;
 import com.example.springboot.user.domain.token.TokenEntity;
 import com.example.springboot.user.domain.token.TokenRepository;
 import com.example.springboot.user.model.token.FirstTimeTokenDTO;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
 
