@@ -30,7 +30,7 @@ public class WebSecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.httpBasic().disable().csrf().disable().formLogin().disable()
 				.logout()
-					.logoutUrl("/my/logout")
+					.logoutUrl(ConfigProperties.LOGOUT_URL)
 					.deleteCookies(ConfigProperties.SESSION_ID)
 					.addLogoutHandler(customLogoutHandler)
 					.logoutSuccessHandler(customLogoutSuccessHandler)
@@ -41,6 +41,7 @@ public class WebSecurityConfig {
 					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and()
 					.authorizeRequests()
+						.antMatchers(ConfigProperties.ADMIN_ROLE).hasRole(RoleProperties.ADMIN_ROLE)
 						.antMatchers(ConfigProperties.USER_ROLE).hasRole(RoleProperties.USER_ROLE)
 						.antMatchers(ConfigProperties.PERMIT_ALL).permitAll();
 		return http.build();

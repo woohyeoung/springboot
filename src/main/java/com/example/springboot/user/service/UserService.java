@@ -52,20 +52,20 @@ public class UserService {
 //		return UserSignResponseDTO.builder().key(1).message("SERVER ERROR").build();
 //	}
 
-	public UserSignResponseDTO logout(UserRequestDTO userRequestDTO) {
-		logger.info("UserService logout() ...");
-		try {
-			UserEntity user = userRepository.findByEmail(userRequestDTO.getEmail());
-
-			if(user == null) return UserSignResponseDTO.builder()
-															.key(0)
-															.message("사용자가 존재하지 않습니다.")
-															.build();
-
-			return UserSignResponseDTO.builder().key(2).message("Success").build();
-		} catch (Exception e) {
-			logger.error("UserService Exception logout()", e);
-		}
-		return UserSignResponseDTO.builder().key(1).message("SERVER ERROR").build();
-	}
+//	public UserSignResponseDTO logout(UserRequestDTO userRequestDTO) {
+//		logger.info("UserService logout() ...");
+//		try {
+//			UserEntity user = userRepository.findByEmail(userRequestDTO.getEmail());
+//
+//			if(user == null) return UserSignResponseDTO.builder()
+//															.key(0)
+//															.message("사용자가 존재하지 않습니다.")
+//															.build();
+//
+//			return UserSignResponseDTO.builder().key(2).message("Success").build();
+//		} catch (Exception e) {
+//			logger.error("UserService Exception logout()", e);
+//		}
+//		return UserSignResponseDTO.builder().key(1).message("SERVER ERROR").build();
+//	}
 }
