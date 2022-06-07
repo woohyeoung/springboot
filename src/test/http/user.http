@@ -22,7 +22,7 @@ Authorization: Refresh
 
 ###
 POST http://localhost:8080/my/logout
-Authorization: Bearer
+Authorization:
 Content-Type: application/json
 
 > ./test-file/logout-user1.json

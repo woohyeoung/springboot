@@ -55,8 +55,8 @@ public class CustomAuthorizationFilter extends BasicAuthenticationFilter {
 					} else {
 						logger.info("Access Token Validation - Fail");
 
-						response.setContentType("text/html; charset=UTF-8");
-						response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.BAD_REQUEST, Payload.SIGN_IN_FAIL));
+//						response.setContentType("text/html; charset=UTF-8");
+//						response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.BAD_REQUEST, Payload.SIGN_IN_FAIL));
 					}
 					filterChain.doFilter(request, response);
 					return;
@@ -67,13 +67,13 @@ public class CustomAuthorizationFilter extends BasicAuthenticationFilter {
 
 						response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + accessToken);
 
-						response.setContentType("text/html; charset=UTF-8");
-						response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.OK, Payload.SIGN_IN_OK));
+//						response.setContentType("text/html; charset=UTF-8");
+//						response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.OK, Payload.SIGN_IN_OK));
 					} else {
 						logger.info("Refresh Token Validation - Fail");
 
-						response.setContentType("text/html; charset=UTF-8");
-						response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.BAD_REQUEST, Payload.SIGN_IN_FAIL));
+//						response.setContentType("text/html; charset=UTF-8");
+//						response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.BAD_REQUEST, Payload.SIGN_IN_FAIL));
 					}
 					filterChain.doFilter(request, response);
 					return;
@@ -86,8 +86,8 @@ public class CustomAuthorizationFilter extends BasicAuthenticationFilter {
 		} catch (Exception e) {
 			logger.error("사용자 인증을 확인하지 못해 인가할 수 없습니다. CustomAuthorizationFilter - doFilterInternal()", e);
 		}
-		response.setContentType("text/html; charset=UTF-8");
-		response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.INTERNAL_SERVER_ERROR, Payload.SIGN_IN_FAIL));
+//		response.setContentType("text/html; charset=UTF-8");
+//		response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.INTERNAL_SERVER_ERROR, Payload.SIGN_IN_FAIL));
 
 		filterChain.doFilter(request, response);
 	}

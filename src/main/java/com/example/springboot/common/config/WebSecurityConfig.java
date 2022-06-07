@@ -37,6 +37,7 @@ public class WebSecurityConfig {
 				.and()
 					.addFilter(corsFilter.corsFilter())
 					.addFilter(new CustomAuthenticationFilter(customAuthenticationManager, tokenProvider, tokenRepository))
+					.addFilter(new CustomAuthenticationFilter(customAuthenticationManager, tokenProvider, tokenRepository))
 					.addFilter(new CustomAuthorizationFilter(customAuthenticationManager, tokenProvider, customUserDetailService))
 					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and()
