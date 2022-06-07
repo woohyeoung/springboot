@@ -68,12 +68,23 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 			String principal = String.valueOf(authResult.getPrincipal());
 			TokenEntity tokenEntity = tokenRepository.findByEmail(principal);
 			if (tokenEntity != null) {
-				logger.info("Existing Refresh Token Check - Success");
-				String accessToken = tokenProvider.generateAccessToken(principal);
+				if (tokenProvider.validateToken(tokenEntity.getRefreshToken())) {
+					logger.info("RefreshToken validate success - AccessToken issuance");
+					String accessToken = tokenProvider.generateAccessToken(principal);
 
-				response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + accessToken);
+					response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + accessToken);
+				}
+				else {
+					logger.info("RefreshToken Expired - All Token issuance");
+					FirstTimeTokenDTO firstTimeTokenDTO = tokenProvider.generateToken(principal);
+					if(!tokenProvider.updateRefresh(firstTimeTokenDTO.getReIssuanceTokenDTO())) logger.warn("Token Set Update to Token Repository - Fail");
+
+					response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + firstTimeTokenDTO.getAccessToken());
+					response.addHeader(TokenProperties.HEADER_KEY_REFRESH, TokenProperties.SECRET_TYPE_REFRESH + firstTimeTokenDTO.getReIssuanceTokenDTO().getRefreshToken());
+				}
 			}
 			else {
+				logger.info("First Login User - All Token issuance");
 				FirstTimeTokenDTO firstTimeTokenDTO = tokenProvider.generateToken(principal);
 				if(!tokenProvider.saveRefresh(firstTimeTokenDTO.getReIssuanceTokenDTO())) logger.warn("Token Set Save to Token Repository - Fail");
 

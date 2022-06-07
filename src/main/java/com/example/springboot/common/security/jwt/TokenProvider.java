@@ -113,7 +113,7 @@ public class TokenProvider {
 	}
 
 	public boolean saveRefresh(ReIssuanceTokenDTO reIssuanceTokenDTO) {
-		logger.info("TokenController - saveRefresh() ...");
+		logger.info("TokenProvider - saveRefresh() ...");
 		try {
 			TokenEntity tokenEntity = tokenRepository.save(TokenEntity.builder()
 																		.email(reIssuanceTokenDTO.getEmail())
@@ -138,6 +138,19 @@ public class TokenProvider {
 			}
 		} catch (Exception e) {
 			logger.error("토큰 저장소 비교 검증 에러 TokenProvider - validateExistingToken()", e);
+		}
+		return false;
+	}
+
+	public boolean updateRefresh(ReIssuanceTokenDTO reIssuanceTokenDTO) {
+		logger.info("TokenProvider - updateRefresh() ...");
+		try {
+			Integer result = tokenRepository.updateToken(reIssuanceTokenDTO.getRefreshToken(), reIssuanceTokenDTO.getEmail());
+			if(result > 0) return true;
+		} catch (NullPointerException ne) {
+			logger.error("토큰 저장소가 비어있습니다. TokenProvider - updateRefresh()", ne);
+		} catch (Exception e) {
+			logger.error("SERVER ERROR TokenProvider - updateRefresh()", e);
 		}
 		return false;
 	}
