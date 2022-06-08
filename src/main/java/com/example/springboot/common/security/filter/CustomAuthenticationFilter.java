@@ -8,6 +8,7 @@ import com.example.springboot.common.security.jwt.TokenProvider;
 import com.example.springboot.user.domain.token.TokenEntity;
 import com.example.springboot.user.domain.token.TokenRepository;
 import com.example.springboot.user.domain.user.UserEntity;
+import com.example.springboot.user.domain.user.UserRepository;
 import com.example.springboot.user.model.token.FirstTimeTokenDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,6 +33,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 	private final CustomAuthenticationManager authenticationManager;
 	private final TokenProvider tokenProvider;
 	private final TokenRepository tokenRepository;
+	private final UserRepository userRepository;
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
@@ -63,8 +66,11 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		log.info("AuthenticationFilter - successfulAuthentication() ...");
 
 		try {
-//			CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
 			String principal = String.valueOf(authResult.getPrincipal());
+
+			UserEntity userEntity = userRepository.findByEmail(principal);
+			if(userEntity != null) userRepository.updateLogin(new Date(), principal);
+
 			TokenEntity tokenEntity = tokenRepository.findByEmail(principal);
 			if (tokenEntity != null) {
 				if (tokenProvider.validateToken(tokenEntity.getRefreshToken())) {

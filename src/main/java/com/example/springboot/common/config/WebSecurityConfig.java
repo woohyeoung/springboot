@@ -7,6 +7,7 @@ import com.example.springboot.common.security.handler.CustomLogoutHandler;
 import com.example.springboot.common.security.handler.CustomLogoutSuccessHandler;
 import com.example.springboot.common.security.jwt.TokenProvider;
 import com.example.springboot.user.domain.token.TokenRepository;
+import com.example.springboot.user.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,6 +25,7 @@ public class WebSecurityConfig {
 	private final CustomAuthenticationManager customAuthenticationManager;
 	private final CustomLogoutHandler customLogoutHandler;
 	private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
+	private final UserRepository userRepository;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -35,7 +37,7 @@ public class WebSecurityConfig {
 					.logoutSuccessHandler(customLogoutSuccessHandler)
 				.and()
 					.addFilter(corsFilter.corsFilter())
-					.addFilter(new CustomAuthenticationFilter(customAuthenticationManager, tokenProvider, tokenRepository))
+					.addFilter(new CustomAuthenticationFilter(customAuthenticationManager, tokenProvider, tokenRepository, userRepository))
 					.addFilter(new CustomAuthorizationFilter(customAuthenticationManager, tokenProvider, customUserDetailService))
 					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and()

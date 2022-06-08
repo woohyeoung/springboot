@@ -4,6 +4,7 @@ import com.example.springboot.board.domain.BaseTimeEntity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Getter
 @ToString
@@ -22,4 +23,5 @@ public class UserEntity extends BaseTimeEntity {
 	@Column(length = 300, nullable = false)					private String password;
 	@Column(length = 20, nullable = false)					private String name;
 	@Column(length = 20, nullable = false)					private String role;
+	@Column(nullable = false)								private Date accessDate;
 }
