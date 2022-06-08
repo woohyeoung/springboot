@@ -2,7 +2,6 @@ package com.example.springboot.common.security.handler;
 
 import com.example.springboot.common.config.properties.ConfigProperties;
 import com.example.springboot.common.config.properties.RoleProperties;
-import com.example.springboot.common.config.properties.TokenProperties;
 import com.example.springboot.common.response.Payload;
 import com.example.springboot.common.security.jwt.TokenProvider;
 import com.example.springboot.user.model.token.ValidateTokenDTO;

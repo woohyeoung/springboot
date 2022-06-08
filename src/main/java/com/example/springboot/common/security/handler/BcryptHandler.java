@@ -2,15 +2,14 @@ package com.example.springboot.common.security.handler;
 
 import com.example.springboot.user.domain.user.UserEntity;
 import com.example.springboot.user.domain.user.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class BcryptHandler {
-	private static final Logger logger = LoggerFactory.getLogger(BcryptHandler.class);
 	private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 	private final UserRepository userRepository;
 
@@ -24,44 +23,44 @@ public class BcryptHandler {
 	}
 
 	public String roleValid(String email) {
-		logger.info("BcryptHandler - roleValid() ...");
+		log.info("BcryptHandler - roleValid() ...");
 		if(userRepository.existsByEmail(email)) {
-			logger.info("User Email Validate - Success");
+			log.info("User Email Validate - Success");
 			UserEntity userEntity = userRepository.findByEmail(email);
 
 			return userEntity.getRole();
 		}
-		logger.warn("User Email Validate - Fail");
+		log.warn("User Email Validate - Fail");
 		return null;
 	}
 
 	public boolean emailValid(String email) {
-		logger.info("BcryptHandler - emailValid() ...");
+		log.info("BcryptHandler - emailValid() ...");
 		try {
 			UserEntity userEntity = userRepository.findByEmail(email);
 			if (userEntity != null) {
-				logger.info("UserEntity Validate - Success");
+				log.info("UserEntity Validate - Success");
 				if(userEntity.getEmail() != null) {
-					logger.info("User Email Validate - Success");
+					log.info("User Email Validate - Success");
 					return true;
-				} else logger.warn("User Email Validate - Fail");
-			} else logger.warn("UserEntity Validate - Fail");
+				} else log.warn("User Email Validate - Fail");
+			} else log.warn("UserEntity Validate - Fail");
 		} catch (Exception e) {
-			logger.error("SERVER ERROR BcryptHandler - emailValid()", e);
+			log.error("SERVER ERROR BcryptHandler - emailValid()", e);
 		}
 		return false;
 	}
 
 	public boolean passwordValid(String email, String password) {
-		logger.info("BcryptHandler - passwordValid() ...");
+		log.info("BcryptHandler - passwordValid() ...");
 		try {
 			UserEntity userEntity = userRepository.findByEmail(email);
 			if (passwordEncoder.matches(password, userEntity.getPassword())) {
-				logger.info("Password validate - Success");
+				log.info("Password validate - Success");
 				return true;
-			} else logger.warn("Password validate - Fail");
+			} else log.warn("Password validate - Fail");
 		} catch (Exception e) {
-			logger.error("SERVER ERROR BcryptHandler - passwordValid()", e);
+			log.error("SERVER ERROR BcryptHandler - passwordValid()", e);
 		}
 		return false;
 	}

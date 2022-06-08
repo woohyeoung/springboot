@@ -2,8 +2,7 @@ package com.example.springboot.common.security.filter;
 
 import com.example.springboot.common.security.handler.BcryptHandler;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -11,24 +10,24 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class CustomAuthenticationManager implements AuthenticationManager {
-	private static final Logger logger = LoggerFactory.getLogger(CustomAuthenticationManager.class);
 	private final BcryptHandler bcryptHandler;
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		logger.info("CustomAuthenticationProvider - authenticate() ...");
+		log.info("CustomAuthenticationProvider - authenticate() ...");
 		try {
 			String email = String.valueOf(authentication.getPrincipal());
 			String password = String.valueOf(authentication.getCredentials());
 
 			if(email == null || email.equals("")) {
-				logger.warn("User Email validate - Empty or null");
+				log.warn("User Email validate - Empty or null");
 				throw new NullPointerException();
 			}
 			else if(password == null || password.equals("")) {
-				logger.warn("User Password validate - Empty or null");
+				log.warn("User Password validate - Empty or null");
 				throw new NullPointerException();
 			}
 			else {
@@ -38,19 +37,19 @@ public class CustomAuthenticationManager implements AuthenticationManager {
 				}
 			}
 		} catch (LockedException le) {
-			logger.error("잠겨 있는 계정 CustomAuthenticationManager - authenticate()", le);
+			log.error("잠겨 있는 계정 CustomAuthenticationManager - authenticate()", le);
 		} catch (DisabledException de) {
-			logger.error("비활성화 계정 CustomAuthenticationManager - authenticate()", de);
+			log.error("비활성화 계정 CustomAuthenticationManager - authenticate()", de);
 		} catch (CredentialsExpiredException ce) {
-			logger.error("비밀번호가 만료된 계정 CustomAuthenticationManager - authenticate()", ce);
+			log.error("비밀번호가 만료된 계정 CustomAuthenticationManager - authenticate()", ce);
 		} catch (AccountExpiredException ae) {
-			logger.error("기간이 만료된 계정 CustomAuthenticationManager - authenticate()", ae);
+			log.error("기간이 만료된 계정 CustomAuthenticationManager - authenticate()", ae);
 		} catch (BadCredentialsException be) {
-			logger.error("계정 자격 증명 실패 CustomAuthenticationManager - authenticate()", be);
+			log.error("계정 자격 증명 실패 CustomAuthenticationManager - authenticate()", be);
 		} catch (UsernameNotFoundException ue) {
-			logger.error("존재하지 않는 계정 CustomAuthenticationManager - authenticate()", ue);
+			log.error("존재하지 않는 계정 CustomAuthenticationManager - authenticate()", ue);
 		} catch (Exception e) {
-			logger.error("SERVER ERROR CustomAuthenticationManager - authenticate()", e);
+			log.error("SERVER ERROR CustomAuthenticationManager - authenticate()", e);
 		}
 		throw new NullPointerException();
 	}

@@ -1,15 +1,14 @@
 package com.example.springboot.common.security.handler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+@Slf4j
 public class CustomLoginFailureHandler {
-	private static final Logger logger = LoggerFactory.getLogger(CustomLoginFailureHandler.class);
 
 	public String onAuthenticationFailure(Exception exception) {
-		logger.info("CustomLoginFailureHandler - onAuthenticationFailure() ...");
+		log.info("CustomLoginFailureHandler - onAuthenticationFailure() ...");
 
 		String message = "SERVER ERROR";
 		try {
@@ -22,7 +21,7 @@ public class CustomLoginFailureHandler {
 			else if(exception instanceof NullPointerException) message = "아이디 또는 비밀번호 미입력";
 			else message = "알 수 없는 이유";
 		} catch (Exception e) {
-			logger.error("SERVER ERROR CustomLoginFailureHandler - onAuthenticationFailure()", e);
+			log.error("SERVER ERROR CustomLoginFailureHandler - onAuthenticationFailure()", e);
 		}
 		return message;
 	}

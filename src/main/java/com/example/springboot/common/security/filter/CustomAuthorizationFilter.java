@@ -6,8 +6,7 @@ import com.example.springboot.common.security.handler.ResponseHandler;
 import com.example.springboot.common.security.jwt.TokenProvider;
 import com.example.springboot.common.security.auth.CustomUserDetailService;
 import com.example.springboot.user.model.token.ValidateTokenDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,8 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Slf4j
 public class CustomAuthorizationFilter extends BasicAuthenticationFilter {
-	private static final Logger logger = LoggerFactory.getLogger(CustomAuthorizationFilter.class);
 	private final TokenProvider tokenProvider;
 	private final CustomUserDetailService userDetailService;
 
@@ -35,14 +34,14 @@ public class CustomAuthorizationFilter extends BasicAuthenticationFilter {
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-		logger.info("AuthorizationFilter - doFilterInternal() ...");
+		log.info("AuthorizationFilter - doFilterInternal() ...");
 		try {
 			ValidateTokenDTO validateTokenDTO = tokenProvider.requestCheckToken(request);
 			String token = validateTokenDTO.getToken();
 			switch (validateTokenDTO.getCode()) {
 				case 0 :
 					if (tokenProvider.validateToken(token)) {
-						logger.info("Access Token Validation - Success");
+						log.info("Access Token Validation - Success");
 
 						String userPk = tokenProvider.getUserPk(token);
 
@@ -55,7 +54,7 @@ public class CustomAuthorizationFilter extends BasicAuthenticationFilter {
 
 						filterChain.doFilter(request, response);
 					} else {
-						logger.info("Access Token Validation - Fail");
+						log.info("Access Token Validation - Fail");
 
 						response.setContentType("text/html; charset=UTF-8");
 						response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.BAD_REQUEST, Payload.SIGN_IN_FAIL + Payload.TOKEN_FAIL));
@@ -63,7 +62,7 @@ public class CustomAuthorizationFilter extends BasicAuthenticationFilter {
 					return;
 				case 1 :
 					if (tokenProvider.validateExistingToken(token)) {
-						logger.info("Refresh Token Validation - Success");
+						log.info("Refresh Token Validation - Success");
 						String accessToken = tokenProvider.generateAccessToken(tokenProvider.getUserPk(token));
 
 						response.addHeader(TokenProperties.HEADER_KEY_ACCESS, TokenProperties.SECRET_TYPE_ACCESS + accessToken);
@@ -71,7 +70,7 @@ public class CustomAuthorizationFilter extends BasicAuthenticationFilter {
 						response.setContentType("text/html; charset=UTF-8");
 						response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.OK, Payload.TOKEN_OK));
 					} else {
-						logger.info("Refresh Token Validation - Fail");
+						log.info("Refresh Token Validation - Fail");
 
 						response.setContentType("text/html; charset=UTF-8");
 						response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.BAD_REQUEST, Payload.SIGN_IN_FAIL + Payload.TOKEN_FAIL));
@@ -79,12 +78,12 @@ public class CustomAuthorizationFilter extends BasicAuthenticationFilter {
 					return;
 				case 2 :
 				default:
-					logger.warn("Access/Refresh Token Validation - Fail");
+					log.warn("Access/Refresh Token Validation - Fail");
 			}
 		} catch (NullPointerException ne) {
-			logger.error("토큰 값이 비어있습니다. CustomAuthorizationFilter - doFilterInternal()");
+			log.error("토큰 값이 비어있습니다. CustomAuthorizationFilter - doFilterInternal()");
 		} catch (Exception e) {
-			logger.error("사용자 인증을 확인하지 못해 인가할 수 없습니다. CustomAuthorizationFilter - doFilterInternal()", e);
+			log.error("사용자 인증을 확인하지 못해 인가할 수 없습니다. CustomAuthorizationFilter - doFilterInternal()", e);
 		}
 
 		filterChain.doFilter(request, response);
