@@ -10,15 +10,14 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class UserSignUpRequestDTO {
-	private String email, password, name;
-//	private final String roles;
+	private String email, password, name, role;
 
 	public UserEntity toEntity(String pw) {
 		return UserEntity.builder()
 						.email(email)
 						.password(pw)
 						.name(name)
-//						.roles(roles)
+						.role(role)
 						.build();
 	}
 }

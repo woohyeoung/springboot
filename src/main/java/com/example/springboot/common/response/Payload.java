@@ -23,5 +23,9 @@ public class Payload {
 
 	public static final String TOKEN_OK = "토큰 검증에 성공하였습니다.";
 	public static final String TOKEN_FAIL = "토큰 검증에 실패하였습니다.";
+	
+	public static final String USER_ROLE_CHECK_OK = "유저 역할 확인에 성공하였습니다.";
+	public static final String USER_ROLE_CHECK_FAIL = "유저 역할 확인에 실패하였습니다.";
+	
 	public static final String SERVER_ERROR = "서버와의 통신에 실패하였습니다.";
 }

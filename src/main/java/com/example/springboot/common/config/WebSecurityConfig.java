@@ -1,7 +1,6 @@
 package com.example.springboot.common.config;
 
 import com.example.springboot.common.config.properties.ConfigProperties;
-import com.example.springboot.common.config.properties.RoleProperties;
 import com.example.springboot.common.security.auth.CustomUserDetailService;
 import com.example.springboot.common.security.filter.*;
 import com.example.springboot.common.security.handler.CustomLogoutHandler;
@@ -41,8 +40,6 @@ public class WebSecurityConfig {
 					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and()
 					.authorizeRequests()
-						.antMatchers(ConfigProperties.ADMIN_ROLE).hasRole(RoleProperties.ADMIN_ROLE)
-						.antMatchers(ConfigProperties.USER_ROLE).hasRole(RoleProperties.USER_ROLE)
 						.antMatchers(ConfigProperties.PERMIT_ALL).permitAll();
 		return http.build();
 	}

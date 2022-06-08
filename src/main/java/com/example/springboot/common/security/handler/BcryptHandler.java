@@ -23,6 +23,19 @@ public class BcryptHandler {
 		return passwordEncoder.encode(password);
 	}
 
+	public String roleValid(String email) {
+		logger.info("BcryptHandler - roleValid() ...");
+		if(userRepository.existsByEmail(email)) {
+			logger.info("User Email Validate - Success");
+			UserEntity userEntity = userRepository.findByEmail(email);
+
+//			return userEntity.getRole();
+			return userEntity.getEmail();
+		}
+		logger.warn("User Email Validate - Fail");
+		return null;
+	}
+
 	public boolean emailValid(String email) {
 		logger.info("BcryptHandler - emailValid() ...");
 		try {
