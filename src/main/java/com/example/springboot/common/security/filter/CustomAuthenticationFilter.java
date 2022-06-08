@@ -28,7 +28,7 @@ import java.io.IOException;
 
 @RequiredArgsConstructor
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-	private final Logger logger = LoggerFactory.getLogger(CustomAuthenticationFilter.class);
+	private static final Logger logger = LoggerFactory.getLogger(CustomAuthenticationFilter.class);
 	private final CustomAuthenticationManager authenticationManager;
 	private final TokenProvider tokenProvider;
 	private final TokenRepository tokenRepository;

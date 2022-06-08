@@ -24,8 +24,8 @@ public class TokenProvider {
 	private static final String typeKeyRefresh = TokenProperties.SECRET_TYPE_REFRESH;
 	private static final long accessValidTime = TokenProperties.SECRET_TIME_ACCESS;
 	private static final long refreshValidTime = TokenProperties.SECRET_TIME_REFRESH;
-	private String secretKey;
-	private TokenRepository tokenRepository;
+	private final String secretKey;
+	private final TokenRepository tokenRepository;
 
 	@Autowired
 	public TokenProvider(TokenRepository tokenRepository) {
@@ -39,10 +39,10 @@ public class TokenProvider {
 
 		String accessToken = generateAccessToken(userPk);
 		String refreshToken = Jwts.builder()
-				.setSubject(userPk)
-				.setExpiration(new Date(now.getTime() + refreshValidTime))
-				.signWith(SignatureAlgorithm.HS512, secretKey)
-				.compact();
+									.setSubject(userPk)
+									.setExpiration(new Date(now.getTime() + refreshValidTime))
+									.signWith(SignatureAlgorithm.HS512, secretKey)
+									.compact();
 
 		return FirstTimeTokenDTO.builder().accessToken(accessToken)
 				.reIssuanceTokenDTO(ReIssuanceTokenDTO.builder()
@@ -55,11 +55,11 @@ public class TokenProvider {
 		Date now = new Date();
 
 		return Jwts.builder()
-				.setSubject(userPk)
-				.setIssuedAt(now)
-				.setExpiration(new Date(now.getTime()+ accessValidTime))
-				.signWith(SignatureAlgorithm.HS512, secretKey)
-				.compact();
+					.setSubject(userPk)
+					.setIssuedAt(now)
+					.setExpiration(new Date(now.getTime()+ accessValidTime))
+					.signWith(SignatureAlgorithm.HS512, secretKey)
+					.compact();
 	}
 
 	public String getUserPk(String token) {

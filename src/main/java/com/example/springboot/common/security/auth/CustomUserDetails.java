@@ -8,7 +8,6 @@ import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 @Getter
@@ -20,13 +19,7 @@ public class CustomUserDetails implements UserDetails {
 	private UserEntity user;
 
 	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-//		Collection<GrantedAuthority> authorities = new ArrayList<>();
-//		for(String role : user.getRoleList()) authorities.add(() -> role);
-//
-//		return authorities;
-		return null;
-	}
+	public Collection<? extends GrantedAuthority> getAuthorities() { return null; }
 
 	@Override
 	public String getPassword() {

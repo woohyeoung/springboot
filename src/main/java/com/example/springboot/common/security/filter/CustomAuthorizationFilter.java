@@ -86,7 +86,7 @@ public class CustomAuthorizationFilter extends BasicAuthenticationFilter {
 		} catch (Exception e) {
 			logger.error("사용자 인증을 확인하지 못해 인가할 수 없습니다. CustomAuthorizationFilter - doFilterInternal()", e);
 		}
-		response.setContentType("text/html; charset=UTF-8");
-		response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.INTERNAL_SERVER_ERROR, Payload.SIGN_IN_FAIL + Payload.TOKEN_FAIL));
+
+		filterChain.doFilter(request, response);
 	}
 }
