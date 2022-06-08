@@ -13,11 +13,11 @@ Content-Type: application/json
 < ./test-file/login-user1.json
 # < ./test-file/login-user2.json
 ###
-POST http://localhost:8080/token_check
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MTIzQGV4YW1wbGUuY29tIiwiaWF0IjoxNjU0NjUyOTcwLCJleHAiOjE2NTQ2NTQ3NzB9.D1nnt0LDqtSXURikVMbksqK5pXmmXj1YC-vb0DyUU6rmL3AbYCo-9qSRvNFG3o-mG7_WSK-ad7DO3rc3KyuWCQ
+POST http://localhost:8080/api_user/token_check
+Authorization: Bearer
 
 ###
-POST http://localhost:8080/token_check
+POST http://localhost:8080/api_user/token_check
 Authorization: Refresh
 
 ###
@@ -27,5 +27,11 @@ Content-Type: application/json
 
 > ./test-file/logout-user1.json
 ###
-GET http://localhost:8080/api/board/list
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MTIzQGV4YW1wbGUuY29tIiwiaWF0IjoxNjU0NjUyOTcwLCJleHAiOjE2NTQ2NTQ3NzB9.D1nnt0LDqtSXURikVMbksqK5pXmmXj1YC-vb0DyUU6rmL3AbYCo-9qSRvNFG3o-mG7_WSK-ad7DO3rc3KyuWCQ
+GET http://localhost:8080/api_user/board/list
+Authorization: Bearer
+
+###
+GET http://localhost:8080/api_admin/user/role_check
+Authorization: Bearer
+
+###

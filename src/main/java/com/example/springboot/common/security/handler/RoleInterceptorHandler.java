@@ -38,7 +38,6 @@ public class RoleInterceptorHandler implements HandlerInterceptor {
 					if (bcryptHandler.emailValid(email)) {
 						log.info("User validate - Success");
 						String role = bcryptHandler.roleValid(email);
-
 						if (request.getRequestURI().startsWith(ConfigProperties.ADMIN_ROLE)) {
 							log.info("ADMIN role validate ...");
 							if (role != null && role.equals(RoleProperties.ADMIN_ROLE)) {
@@ -64,7 +63,7 @@ public class RoleInterceptorHandler implements HandlerInterceptor {
 							break Outer;
 						}
 						log.warn("Unverified role ACCESS ... ");
-						result = true;
+
 					} else {
 						log.warn("Request User is not exist RoleInterceptorHandler - preHandle()");
 						response.setContentType("text/html; charset=UTF-8");

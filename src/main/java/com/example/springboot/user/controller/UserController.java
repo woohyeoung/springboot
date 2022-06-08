@@ -54,9 +54,15 @@ public class UserController {
 //		return new ResponseDTO().of(HttpStatus.OK, Payload.SIGN_OUT_OK, result.getMessage());
 //	}
 
-	@PostMapping(value = "/token_check")
+	@PostMapping(value = "/api_user/token_check")
 	public ResponseDTO tokenCheck() {
 		logger.info("tokenCheck() ...");
+
+		return new ResponseDTO().of(HttpStatus.OK, "");
+	}
+	@GetMapping(value = "/api_admin/user/role_check")
+	public ResponseDTO roleCheck() {
+		logger.info("roleCheck() ...");
 
 		return new ResponseDTO().of(HttpStatus.OK, "");
 	}

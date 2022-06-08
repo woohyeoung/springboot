@@ -29,8 +29,7 @@ public class BcryptHandler {
 			logger.info("User Email Validate - Success");
 			UserEntity userEntity = userRepository.findByEmail(email);
 
-//			return userEntity.getRole();
-			return userEntity.getEmail();
+			return userEntity.getRole();
 		}
 		logger.warn("User Email Validate - Fail");
 		return null;
