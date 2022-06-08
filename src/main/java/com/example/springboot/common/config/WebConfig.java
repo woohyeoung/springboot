@@ -18,6 +18,6 @@ public class WebConfig implements WebMvcConfigurer {
 		registry.addInterceptor(new RoleInterceptorHandler(bcryptHandler, tokenProvider))
 				.order(1)
 				.addPathPatterns("/**")
-				.excludePathPatterns("/sign","/my/**");
+				.excludePathPatterns("/sign");
 	}
 }
