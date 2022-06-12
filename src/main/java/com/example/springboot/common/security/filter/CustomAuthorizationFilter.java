@@ -57,7 +57,7 @@ public class CustomAuthorizationFilter extends BasicAuthenticationFilter {
 						log.info("Access Token Validation - Fail");
 
 						response.setContentType("text/html; charset=UTF-8");
-						response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.BAD_REQUEST, Payload.SIGN_IN_FAIL + Payload.TOKEN_FAIL));
+						response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.BAD_REQUEST, Payload.ACCESS_FAIL + Payload.TOKEN_FAIL));
 					}
 					return;
 				case 1 :
@@ -73,7 +73,7 @@ public class CustomAuthorizationFilter extends BasicAuthenticationFilter {
 						log.info("Refresh Token Validation - Fail");
 
 						response.setContentType("text/html; charset=UTF-8");
-						response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.BAD_REQUEST, Payload.SIGN_IN_FAIL + Payload.TOKEN_FAIL));
+						response.getWriter().write(new ResponseHandler().convertResult(HttpStatus.BAD_REQUEST, Payload.ACCESS_FAIL + Payload.TOKEN_FAIL));
 					}
 					return;
 				case 2 :
